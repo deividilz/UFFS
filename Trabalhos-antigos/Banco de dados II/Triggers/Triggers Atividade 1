@@ -1,0 +1,21 @@
+CREATE OR REPLACE FUNCTION process_emp_audit() RETURNS TRIGGER AS $$
+ BEGIN
+ IF (TG_OP = 'DELETE') THEN
+ 	INSERT INTO Auditoria SELECT OLD.id, OLD.cpf, OLD.Num_Departamento, OLD.Salario, OLD.Supervisor, 3, user, now();
+	RETURN OLD;
+ ELSIF (TG_OP = 'UPDATE') THEN
+ 	INSERT INTO Auditoria SELECT NEW.id, NEW.cpf, NEW.Num_Departamento, NEW.Salario, NEW.Supervisor, 2, user, now();
+ 	RETURN NEW;
+ ELSIF (TG_OP = 'INSERT') THEN
+ 	INSERT INTO Auditoria SELECT NEW.id, NEW.cpf, NEW.Num_Departamento, NEW.Salario, NEW.Supervisor, 1, user, now();
+ 	RETURN NEW;
+ END IF;
+ RETURN NULL;
+ END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER Auditoria
+AFTER INSERT OR UPDATE OR DELETE ON EMPREGADO
+ FOR EACH ROW EXECUTE PROCEDURE process_emp_audit();
+ 
+ insert into empregado values (1, 'deividi', '123456789', 10, 2000, 'dep');
