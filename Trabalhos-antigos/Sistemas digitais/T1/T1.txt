@@ -1,0 +1,133 @@
+-- Code your design here
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity MUX_2x1 is
+port(
+in1, in2, sel : in std_logic;
+s_out : out std_logic
+);
+end entity;
+
+architecture equation of MUX_2x1 is
+
+begin
+s_out <= (in2 and sel) or (in1 and not sel);
+
+end architecture;
+
+ 
+
+2)
+
+-- Code your testbench here
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity TB_MUX_2x1 is
+end TB_MUX_2x1;
+
+architecture TESTE of TB_MUX_2x1 is
+signal TB_A : std_logic;
+signal TB_B : std_logic;
+signal TB_C : std_logic;
+signal TBs_out : std_logic;
+
+begin
+
+SSC4bits: entity work.MUX_2x1 port map(in1 => TB_A, in2 => TB_B, sel => TB_C, s_out => TBs_out);
+
+process
+begin
+
+TB_A <= '1';
+TB_B <= '0';
+TB_C <= '1';
+wait for 10 ns;
+
+TB_A <= '0';
+TB_B <= '1';
+TB_C <= '0';
+wait for 10 ns;
+
+TB_A <= '1';
+TB_B <= '1';
+TB_C <= '1';
+wait for 10 ns;
+
+wait;
+end process;
+end architecture;
+
+ 
+
+3) 
+
+-- Code your design here
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity MUX_4x1 is
+port(
+in0, in1, sel0: in std_logic;
+in2, in3: in std_logic;
+sel1: in std_logic;
+out_a : out std_logic;
+out_b : out std_logic;
+out_c : out std_logic
+);
+end entity;
+
+architecture equation of MUX_4x1 is
+
+begin
+
+out_a <= (in1 and sel0) or (in0 and not sel0);
+out_b <= (in3 and sel0) or (in2 and not sel0);
+out_c <= ((in1 and sel0) or (in0 and not sel0)) or ((in3 and sel0) or (in2 and not sel0));
+
+end architecture;
+
+ 
+
+4)
+
+-- Code your testbench here
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity TB_MUX_4x1 is
+end TB_MUX_4x1;
+
+architecture teste of TB_MUX_4x1 is
+signal TB_IN0 : std_logic;
+signal TB_IN1 : std_logic;
+signal TB_IN2 : std_logic;
+signal TB_IN3 : std_logic;
+
+signal TB_SEL0 : std_logic;
+
+signal TB_OUT_IN0 : std_logic;
+signal TB_OUT_IN1 : std_logic;
+signal TB_SEL1 : std_logic;
+
+signal TB_OUT : std_logic;
+
+begin
+
+SSC4bits: entity work.MUX_4x1 port map(in0 => TB_IN0, in1 => TB_IN1, sel0 => TB_SEL0, in2 => TB_IN2, in3 => TB_IN3, out_a => TB_OUT_IN0, out_b => TB_OUT_IN1, sel1 => TB_SEL1, out_c => TB_OUT);
+
+process
+begin
+
+TB_IN0 <= '1';
+TB_IN1 <= '0';
+TB_IN2 <= '0';
+TB_IN3 <= '1';
+
+TB_SEL0 <= '1';
+TB_SEL1 <= '1';
+wait;
+
+end process;
+end architecture;
