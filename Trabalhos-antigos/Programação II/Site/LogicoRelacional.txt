@@ -1,0 +1,12 @@
+Cliente(CPF, email, senha, nome, cep, cidade, numero, bairro, rua, complemento);
+
+Produto(CODIGO, nome, peso, valor, marca, cpf(Cliente));
+
+Estoque(CODIGO, quantidade);
+
+Verifica(CODE(Estoque), CODP(Produto));
+
+Carrinho(CODIGO, valorTotal);
+
+// tudo maiusculo é chave primária.
+// fiz algumas modificações no que esta no script, para ficar coerente com o site, mas baseado no conceitual ficaria assim.
