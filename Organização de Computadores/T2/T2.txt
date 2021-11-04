@@ -1,0 +1,20 @@
+.globl main
+main:
+nop
+addi a0, zero, 100 #CARREGA X NO REGISTRADOR A0
+addi a1, zero, 10 #CARREGA Y NO REGISTRADOR A1
+addi a2, zero, 1 #CARREGA 1 NO REGISTRADOR A2
+
+jal soma #CHAMA FUNÇÃO SOMA
+
+fim: j fim #FINALIZA
+
+soma:
+blt a1, a2, terminou #CONTROLA PARA QUANDO FINALIZAR A FUNÇÃO
+addi a2, a2, 1 #ADICIONA 1 AO CONTADOR
+add t1, t1, a0 #ADICIONA A T1 A SOMA DE T1+A0
+j soma #CHAMA A FUNÇÃO SOMA NOVAMENTE
+
+terminou:
+add a0, zero, t1 #ADICIONA O VALOR NO REGISTRADOR A0
+ret

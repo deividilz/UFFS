@@ -1,0 +1,93 @@
+1) a) 
+
+POP op; (op) <- topo
+
+PUSH op; topo <- (op)
+
+ 
+
+SUB op; topo <-     topo - topo-1
+
+MUL op; topo <-     topo * topo-1
+
+DIV op; topo <-       topo / topo-1
+
+POT op; topo <-      topo ^ topo-1
+
+ 
+
+b)
+
+PUSH A
+
+PUSH C
+
+PUSH B
+
+SUB
+
+MUL
+
+PUSH B
+
+PUSH A
+
+POT 
+
+PUSH C
+
+SUB
+
+DIV
+
+POP S
+
+ 
+
+2) a)
+
+MOVMW op; w <- (op)
+
+MOVWM op; (op) <- w
+
+MOVWI op; w <- op
+
+ 
+
+ADD op; w <- w + (op)
+
+SUB op; w <- w - (op)
+
+MUL op; w <- w * (op)
+
+DIV op; w <- w / (op)
+
+POT op; w <- w ^ (op)
+
+ 
+
+b)
+
+MOVWI X,2
+
+ADD A
+
+MOVWM X
+
+MOVWI Y,5
+
+SUB B
+
+MUL X
+
+MOVWM X
+
+MOVMW A
+
+POT A
+
+SUB C
+
+DIV X
+
+MOVWM S
