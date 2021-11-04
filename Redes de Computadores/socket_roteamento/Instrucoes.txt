@@ -1,0 +1,68 @@
+TRABALHO DE REDES DE COMPUTADORES
+
+UNIVERSIDADE FEDERAL DA FRONTEIRA SUL
+Alunos: Deividi Luiz, Luis Henrique, Tatiane Arndt Barbosa
+
+Disciplina: REDES DE COMPUTADORES
+Professor: MARCO AURÉLIO SPOHN
+
+Trabalho: SOCKET E ROTEAMENTO UTILIZANDO ALGORITMO DE BELLMAN-FORD DISTRIBUÍDO
+
+** Arquivos enlaces.config e config.config precisam estar criados e ajustados para o funcionamento do programa.
+
+Variáveis importantes para a complicação:
+    ** NUMERO_DE_ROTEADORES - definir a quantidade de roteadores que possuirá na topologia;
+    ** INFINITO - variável com valor finito;
+    ** TEMP_VETOR - para o envio do vetor distancia automático (tempo em segundos);
+    ** PRINT_ : variáveis com esse início podem ser utilizadas para habilitar/desabilitar logs;
+
+
+Para complicação do programa, utilizar:
+    ** Cada roteador poderá ser executado em janelas diferentes, basta informar o id do roteador correspondente;
+
+        gcc router.c -o router -lpthread
+        ./router <numero do roteador>
+
+
+FUNCIONAMENTO DO PROGRAMA
+    ** Variáveis e funções possuem comentários de seu funcionamento;
+    ** Abaixo será comentado de maneira geral seu funcionamento;
+
+* FUNÇÕES DO PROGRAMA
+
+    ** receber_mensagens:
+        Reponsável por receber os pacotes de dados "d" e de controle "c";
+        Permanece escutando para mostrar as mensagens no terminal;
+
+        * Quando receber controle:
+            Vai chamar a THREAD atualizacao_vetor_distancia repassando o pacote;
+
+        * Quando receber dados:
+            Vau chamar a THREAD enviar_mensagem para fazer o envio da mensagem;
+
+    ** envio_info:
+        Responsável por fazer o roteamento ao destinatário correto, informando qual o próximo salto e o custo;
+
+    ** enviar_mensagem:
+        Responsável por preparar a mensagem de envio definindo os dados do destinatário;
+
+    ** atualizacao_vetor_distancia:
+        Responsável pela atualização dos vetores de distância que serão recebidos por parâmetros, dentro dela ser realizado a verificação das conexões dos roteadores
+            para realizar a alteração dos CUSTOS e dos PRÓXIMOS SALTOS, define como DESCONECTADO quando o roteador ficar offline ou desligado;
+
+    ** envios_vetor_distancia:
+        Responsável por enviar o vetor distância para os nodos vizinhos, vai fazer também a verificação para saber se houve a perda de conexão de algum roteador;
+    
+    ** inicializar_tabela_roteamento:
+        Responsável por iniciliar a tabela de roteamento de acordo com a variável que possui os enlaces;
+
+    ** timer:
+        Responsável pelo tempo geral do programa;
+
+    ** menu_programa:
+        Responsável por mostrar o menu de operação com o usuário;
+
+    ** main:
+        Responsável por inicilizar o programa;
+    
+
