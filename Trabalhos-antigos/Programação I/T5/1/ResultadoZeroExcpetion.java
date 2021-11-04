@@ -1,0 +1,3 @@
+class ResultadoZeroExcpetion extends Exception{
+	
+}

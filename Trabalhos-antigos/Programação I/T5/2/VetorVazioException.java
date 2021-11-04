@@ -1,0 +1,3 @@
+class VetorVazioException extends Exception{
+	
+}

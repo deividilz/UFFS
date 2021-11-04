@@ -1,0 +1,3 @@
+class ParamZeroException extends Exception{
+	
+}

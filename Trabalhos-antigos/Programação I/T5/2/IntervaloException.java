@@ -1,0 +1,3 @@
+class IntervaloException extends Exception{
+	
+}
