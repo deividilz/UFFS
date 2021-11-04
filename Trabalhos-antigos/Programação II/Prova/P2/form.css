@@ -1,0 +1,81 @@
+* {
+	margin: 0px;
+	box-sizing: border-box;
+	font-family: sans-serif;
+	line-height: 1.5;
+}
+header{
+	background-color: lightblue;
+	padding: 10px;
+}
+nav{
+	background-color: LightSteelBlue;
+
+}
+main{
+	float: left;
+	width: 80%;
+	padding: 20px;
+	font-size: 1em;
+}
+footer {
+	background-color: SteelBlue;
+	clear: left;
+}
+aside{
+	margin-top: 20px;
+	float: left;
+	width: 20%;
+	background-color: indianred;
+	height: 400px;
+	text-align: center;
+	font-size: 1.5em;
+}
+div#container{
+	overflow: hidden;
+	background-color: oldlace;
+}
+.menuitem{
+	display: inline;
+	padding: 0px 10px;
+}
+.menuitem:hover{
+	background-color: SteelBlue;
+}
+a {
+	text-decoration: none;
+	color: #222;
+}
+a:hover{
+	color: white;
+}
+#contato{
+	width: 200px;
+	position: fixed;
+	bottom: 0;
+	right: 50px;
+	background-color: darkseagreen;
+	color: white;
+	padding: 5px;
+}
+#foto{
+	position: relative;
+	top: 50px;
+}
+#total{
+	color: red;
+	font-size: 2em;
+	font-weight: bold;
+}
+input, select, textarea {
+	font-family: "Courier new";
+	border: 1px solid SteelBlue;
+	background-color: PapayaWhip;
+
+}
+input:focus, select:focus, textarea:focus{
+	background-color: peachpuff;
+}
+input[type="submit"], input[type="reset"]{
+	background-color: salmon;
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<title>Camisas&Camisas</title>
+		<meta charset="utf-8">
+		<meta name="author" content="Deividi Luiz">
+		<meta name="keywords" content="Camisetas, estilos">
+		<meta name="description" content="Descricao">
+		<link rel="stylesheet" type="text/css" href="estilos.css">
+		<script src="funcao.js"></script>
+	</head>
+	<body>
+		<header>
+			<h1>Camisas&Camisas</h1>
+		</header>
+
+		<nav id="links">
+			<ul>
+				<li><a href="home.html">HOME</a></li>
+				<li><a href="home.html" title="Pedidos">Pedidos</a></li>
+				<li><a href="home.html" title="Contate-nos">Contate-nos</a></li>
+			</ul>
+		</nav>
+
+		<aside>
+			<img src="Imagens/venhaconferir.png" alt="Venha conferir" width="400" class id="img">
+		</aside>
+		
+		<div id="formulario">
+			<form action="home.html" method="post">
+				<fieldset id="idc">
+					<legend> Identificação do Cliente </legend>	
+						<label for="nome">Nome: </label><br>			
+						<input type="text" name="nome" id="nome" size="50" maxlength="50" placeholder="Digite seu nome..." required>
+						<br><br><label for="email">Email: </label><br>
+						<input type="text" name="email" id="email" size="50" maxlength="50" placeholder="Digite seu email..." required>	
+				</fieldset>
+
+				<fieldset id="de">
+					<legend>Dados do evento</legend>
+						<label for="nomeEvento">Nome do evento: </label><br>			
+						<input type="text" name="nomeEvento" id="nomeEvento" size="50" maxlength="50" placeholder="Digite o nome do evento..." required>
+						<br><br><label for="evento">Tipo do evento:</label>
+						<select id="evento">
+							<option value="ep">Empresarial</option>
+							<option value="ac">Acadêmico</option>
+							<option value="re">Religioso</option>
+							<option value="ot">Outros</option>
+						</select>
+
+						<br><br><label for="mesEvento">Mes: </label>		
+						<input type="month" name="mesEvento" id="mesEvento" size="50" required>
+				</fieldset>
+
+					<fieldset id="ped">
+						<legend>Pedido</legend>
+						<br><p>Quantidade de Pedidos: </p>	
+						<input type="number" name="quantPedidoP" id="quantPedidoP" size="50" value="0" min="0" onChange=calcularTotal()> P<br>
+						<input type="number" name="quantPedidoM" id="quantPedidoM" size="50" value="0" min="0" onChange=calcularTotal()> M<br>
+						<input type="number" name="quantPedidoG" id="quantPedidoG" size="50" value="0" min="0" onChange=calcularTotal()> G<br>
+						<input type="number" name="quantPedidoGG" id="quantPedidoGG" size="50" value="0" min="0" onChange=calcularTotal()> GG<br>
+
+						<br><label for="corTecido">Cor tecido: </label>	
+						<input type="color" name="corTecido" id="corTecido" size="50">
+
+						<br><br><label for="arq">Arquivo da arte: </label>
+						<input type="file" name="arq" id="arq">
+
+						<br><p>Tipo de gola: </p>	
+						<label><input type="radio" name="tpGola" value="pl">Polo</label><br>
+						<label><input type="radio" name="tpGola" value="rb">Ribana</label><br>
+						<label><input type="radio" name="tpGola" value="sg">Sem gola</label><br>
+
+						<br><p>Opções adicionais: </p>
+						<label><input type="checkbox" name="opcoesAdicionais" value="pl">
+							Nome do evento nas costas (adicional de R$ 3,00 por camiseta)</label><br>
+						<label><input type="checkbox" name="opcoesAdicionais" value="pl">
+							Miniatura da arte na manga (adicional de R$ 4,00 por camiseta)</label><br>
+						<label><input type="checkbox" name="opcoesAdicionais" value="pl">
+							Acabamento com punho na manga (adicional de R$ 5,00 por camiseta)</label><br>
+
+						<br><p>Data e hora desejada para retirada: </p>
+						<input type="date" name="dataRetirada" id="dataRetirada" size="50">
+						<input type="time" name="horaRetirada" id="horaRetirada" size="50">
+
+						<br><p>Observacoes: </p><br>	
+						<textarea name="observacoes" rows="5" cols="30"> </textarea>
+					</fieldset>
+
+					<fieldset>
+						<legend>Valor total</legend>
+						<div id="total" >
+						</div>
+					</fieldset>	
+
+					<br><input type="submit" value="Enviar">
+					<input type="reset" value="Limpar campos">
+
+			</form>
+		</div>
+
+		<div id="duvidas"> 
+			<p>Em caso de dúvidas, entre em contato pelo número 0800-0000</p>
+		</div>
+		
+		<footer>
+			<p>Envie-nos um email para mais informações: camisas&camisas@hotmail.com</p>
+		</footer>
+	
+	</body>
+</html>	

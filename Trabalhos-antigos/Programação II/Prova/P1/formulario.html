@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-br">
+	<head>
+		<title>Exemplo de Formulário</title>
+		<meta charset="utf-8">
+	</head>
+	<body>
+	<h1>Inscricao para Estagio</h1>
+
+	<div id="formulario">
+		<form action="" method="post" enctype="multpart/form-data">
+			<label for="nome">Nome: </label>
+			<input type="text" name="nome" id="nome" placeholder="Digite seu nome..." required>
+
+			<label for="email">Email: </label>
+			<input type="text" name="email" id="email" placeholder="Digite seu email..." required>
+
+			<label for="campus">Campus:</label>
+			<select id="campus" nome="campus">
+				<option value="ch">Chapeco</option>
+				<option value="ls">Laranjeiras do Sul</option>
+				<option value="re">Realeza</option>
+				<option value="er">Erechim</option>
+				<option value="cl">Cerro Largo</option>
+				<option value="pf">Passo Fundo</option>
+			</select>
+
+			<label for="semestres">Semestres cursados</label>
+			<input type="number" min="0" max="12" name="semestres" id="semestres">
+
+			<br><br>Usuario do RU?
+			
+			<label><input type="radio" name="RU" value="s">Sim</label>
+			<label>	<input type="radio" name="RU" value="n">Nao</label>
+
+			<br><br>Atividades que realiza no campus:<br>
+			<label><input type="checkbox" name="atividades[]" value="pesq">Projetos de Pesquisa</label><br>
+			<label><input type="checkbox" name="atividades[]" value="ext">Projetos de Extensao</label><br>
+			<label><input type="checkbox" name="atividades[]" value="cult">Projetos Culturais</label><br>			
+			<label><input type="checkbox" name="atividades[]" value="ej">Empresa Junior</label><br>
+
+			<br>
+			<label for="cv">Anexe seu curriculo</label>
+			<input type="file" name="cv" id="cv">
+
+			<input type="submit" value="Enviar">
+		</form>
+	</div>
+	</body>
+
+</html>

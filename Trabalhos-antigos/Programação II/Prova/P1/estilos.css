@@ -1,0 +1,91 @@
+*{
+    box-sizing: border-box;
+    margin: 0px;
+}
+
+aside{
+    padding: 10px;
+    float: right;
+    width: 20%;
+    background: #d8d8d8;
+}
+
+nav{
+	background: #595959;
+	padding: 8px;
+	width: 100%;
+}
+
+header{
+	width: 100%;
+}
+
+footer{
+	float: left;
+	width: 100%;
+	padding: 8px;
+	background: #b2b2b2;
+}
+
+#duvidas{
+	padding: 8px;
+	background: #ffdddd;
+	top: 835px;
+	left: 1272px;
+	width: 200px;
+	position: fixed;
+}
+
+#formulario{
+	background: #878787;
+	padding: 8px;
+	float: left;
+	width: 80%;
+}
+
+h1{
+	background: #595959;
+	padding: 8px;
+}
+
+a:hover{
+	background: #000000;
+}
+
+#img{
+    width: 250px;
+    float: right;
+    padding: 8px;
+    position: relative;
+    top: 20px;
+}
+
+#links ul li { display: inline; }
+
+#links ul li a {
+    padding: 10px 10px;
+    display: inline-block;
+
+    /* visual do link */
+    color: #FFFFFF;
+    text-decoration: none;
+    border-bottom:3px;
+
+}
+
+#total{
+	color: #FF0000;
+	font-size: 18px;
+}
+
+#idc:hover{
+	background: #545454;
+}
+
+#de:hover{
+	background: #545454;
+}
+
+#ped:hover{
+	background: #545454;
+}
