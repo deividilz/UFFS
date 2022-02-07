@@ -1,0 +1,68 @@
+<html>
+	<head>
+		<title>Hello world</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="../../libs/three.js-r110/build/three.min.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			var geometry = new THREE.BoxGeometry(1, 1, 1);
+			var material = new THREE.MeshBasicMaterial({color: 0xAC00FF});
+			var cube = new THREE.Mesh(geometry, material);
+			scene.add(cube);
+
+			camera.position.z = 5;
+
+			var animate = function() {
+				requestAnimationFrame(animate);
+
+				cube.rotation.x += 0.05;
+				cube.rotation.y += 0.05;
+
+				renderer.render(scene, camera);
+			};
+
+			animate();
+
+			function onKeyDown(event) {
+				var keyCode = event.which;
+				var speed = 0.1;
+
+				console.log('keyCode', keyCode);
+
+				if (keyCode == 87) { //W
+					cube.position.y += speed;
+					cube.MeshBasicMaterial({color: 0xFFFFFF});
+				} else if (keyCode == 83) { //S
+					cube.position.y -= speed;
+				} else if (keyCode == 65) { //A
+					cube.position.x -= speed;
+				} else if (keyCode == 68) { //D
+					cube.position.x += speed;
+				} else if (keyCode == 32) { //SPACE
+					cube.position.set(0, 0, 0);
+				} else if (keyCode == 38) { //UP
+					cube.position.z += speed;
+				} else if (keyCode == 40) { //DOWN
+					cube.position.z -= speed;
+				} else if (keyCode == 37) { //LEFT
+					cube.position.z -= speed;
+				} else if (keyCode == 39) { //RIGHT
+					cube.position.z += speed;
+				}
+			};
+
+		document.addEventListener("keydown", onKeyDown, false);
+		</script>
+	</body>
+</html>
