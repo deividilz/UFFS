@@ -1,0 +1,63 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch server",
+            "request": "launch",
+            "mainClass": "Arquivos.server",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
+            "name": "Launch ClienteSocket",
+            "request": "launch",
+            "mainClass": "Arquivos.ClienteSocket",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
+            "name": "Launch ClienteSocket",
+            "request": "launch",
+            "mainClass": "ClienteSocket",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Launch cliente",
+            "request": "launch",
+            "mainClass": "cliente",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
+            "name": "Launch receiver",
+            "request": "launch",
+            "mainClass": "receiver",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
+            "name": "Launch sender",
+            "request": "launch",
+            "mainClass": "sender",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
+            "name": "Launch server",
+            "request": "launch",
+            "mainClass": "server",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        }
+    ]
+}

@@ -1,6 +1,7 @@
+package Arquivos;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
@@ -9,6 +10,7 @@ public class receiver {
 
     public static void main(String[] args) throws IOException {
         int porta = 5000;
+        
         try (MulticastSocket msocket = new MulticastSocket(porta)) {
             InetAddress grupo = InetAddress.getByName("230.1.2.3");
             msocket.joinGroup(grupo);
