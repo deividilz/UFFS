@@ -8,7 +8,7 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class server {
+public class Server {
     public static void main(String[] args) throws IOException, ClassNotFoundException{
         try (ServerSocket server = new ServerSocket(1234,10)) {
             System.out.println("Info: aguardando o envio do arquivo pelo cliente.\n");

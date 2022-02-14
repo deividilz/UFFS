@@ -159,28 +159,33 @@ public class ClienteSocket extends javax.swing.JFrame {
         }
     
         } catch (Exception e) {
-            System.out.println("Erro: " + e.toString());
+            System.out.println("Erro: não foi possível enviar o arquivo, verifique os dados..");
         }
     }
 
     private void enviarArquivoServidor(){
-        if (validaArquivo()){
-        try {
-            Socket socket = new Socket(jTextFieldIP.getText().trim(),
-            Integer.parseInt(jTextFieldPorta.getText().trim()));
-    
-            BufferedOutputStream bf = new BufferedOutputStream(socket.getOutputStream());
-    
-            byte[] bytea = serializarArquivo();
-            bf.write(bytea);
-            bf.flush();
-            bf.close();
-            socket.close();
-        } catch (UnknownHostException e) {
-            System.out.println("Erro: " + e.toString());
-        } catch (IOException e) {
-            System.out.println("Erro: " + e.toString());
-        }
+        if (validaArquivo() == true){
+            try {
+                Socket socket = new Socket(jTextFieldIP.getText().trim(),
+                Integer.parseInt(jTextFieldPorta.getText().trim()));
+        
+                BufferedOutputStream bf = new BufferedOutputStream(socket.getOutputStream());
+        
+                byte[] bytea = serializarArquivo();
+                bf.write(bytea);
+                bf.flush();
+                bf.close();
+                socket.close();
+                System.out.println("Info: enviado com sucesso.");
+            } catch (UnknownHostException e) {
+                System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
+            } catch (IOException e) {
+                System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
+            }catch(NullPointerException e){
+                System.out.println("Erro: dados não informados corretamente..\n");    
+            }catch(NumberFormatException e){
+                System.out.println("Erro: dados não informados corretamente..\n");    
+            }
         }
     }
     
@@ -192,20 +197,25 @@ public class ClienteSocket extends javax.swing.JFrame {
         ous.writeObject(arquivo);
         return bao.toByteArray();
         } catch (IOException e) {
-            System.out.println("Erro: " + e.toString());
+            System.out.println("Erro: não foi possível extrair os dados doa rquivo..\n");
         }
     
         return null;
     }
     
     private boolean validaArquivo(){
-        if (arquivo.getTamanhoKB() > tamanhoPermitidoKB){
-        JOptionPane.showMessageDialog(this,
-            "Tamanho máximo permitido atingido ("+(tamanhoPermitidoKB/1024)+")");
-        return false;
-        }else{
-        return true;
+        try{
+            if (arquivo.getTamanhoKB() > tamanhoPermitidoKB){
+                JOptionPane.showMessageDialog(this,
+                    "Tamanho máximo permitido atingido ("+(tamanhoPermitidoKB/1024)+")");
+                return false;
+            }else{
+                return true;
+            }
+        }catch (NullPointerException e) {
+            System.out.println("Erro: verifique os dados informados..\n");
         }
+        return false;
     }
     
     public static void main(String args[]) {

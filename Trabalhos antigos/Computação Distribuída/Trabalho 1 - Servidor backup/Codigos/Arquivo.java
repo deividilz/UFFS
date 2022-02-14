@@ -1,4 +1,4 @@
-package Arquivos;
+package Codigos;
 
 import java.io.Serializable;
 import java.util.Date;

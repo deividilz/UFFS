@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Server",
+            "request": "launch",
+            "mainClass": "Codigos.Server",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
+            "name": "Launch ClienteSocket",
+            "request": "launch",
+            "mainClass": "Codigos.ClienteSocket",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
             "name": "Launch server",
             "request": "launch",
             "mainClass": "Arquivos.server",
