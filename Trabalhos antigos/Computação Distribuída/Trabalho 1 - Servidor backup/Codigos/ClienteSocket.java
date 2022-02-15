@@ -41,7 +41,8 @@ public class ClienteSocket extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jTextFieldPorta = new javax.swing.JTextField();
-
+        jLabel5 = new javax.swing.JLabel();
+        
         this.setLocationRelativeTo(null);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         jLabel1.setText("Arquivo carregado");
@@ -71,6 +72,8 @@ public class ClienteSocket extends javax.swing.JFrame {
 
         jLabel4.setText("Tamanho");
 
+        jLabel5.setText("Aguardando envio");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(jPanel1Layout);
             jPanel1Layout.setHorizontalGroup(
@@ -89,11 +92,13 @@ public class ClienteSocket extends javax.swing.JFrame {
                                 .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGap(18, 18, 18)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabelTamanho)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextFieldIP, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
-                                    .addComponent(jTextFieldPorta)))))
-                    .addContainerGap(17, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel5))
+                            .addComponent(jTextFieldIP, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .addComponent(jTextFieldPorta))))
+                .addContainerGap(17, Short.MAX_VALUE))
             );
             jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -113,7 +118,8 @@ public class ClienteSocket extends javax.swing.JFrame {
                     .addGap(18,18,18)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel4)
-                        .addComponent(jLabelTamanho))
+                        .addComponent(jLabelTamanho)
+                        .addComponent(jLabel5))
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                     .addComponent(jButtonArquivo)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -160,6 +166,7 @@ public class ClienteSocket extends javax.swing.JFrame {
     
         } catch (Exception e) {
             System.out.println("Erro: não foi possível enviar o arquivo, verifique os dados..");
+            jLabel5.setText("Falha no envio");   
         }
     }
 
@@ -175,16 +182,22 @@ public class ClienteSocket extends javax.swing.JFrame {
                 bf.write(bytea);
                 bf.flush();
                 bf.close();
-                socket.close();
+                //socket.close();
                 System.out.println("Info: enviado com sucesso.");
+                jLabel5.setText("Enviado com sucesso");
+                
             } catch (UnknownHostException e) {
                 System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
+                jLabel5.setText("Servidor não encontrado");
             } catch (IOException e) {
                 System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
+                jLabel5.setText("Servidor não encontrado");
             }catch(NullPointerException e){
-                System.out.println("Erro: dados não informados corretamente..\n");    
+                System.out.println("Erro: dados não informados corretamente..\n");  
+                jLabel5.setText("Dados preenchidos incorretos");  
             }catch(NumberFormatException e){
-                System.out.println("Erro: dados não informados corretamente..\n");    
+                System.out.println("Erro: dados não informados corretamente..\n"); 
+                jLabel5.setText("Dados preenchidos incorretos");   
             }
         }
     }
@@ -197,7 +210,8 @@ public class ClienteSocket extends javax.swing.JFrame {
         ous.writeObject(arquivo);
         return bao.toByteArray();
         } catch (IOException e) {
-            System.out.println("Erro: não foi possível extrair os dados doa rquivo..\n");
+            System.out.println("Erro: não foi possível extrair os dados do arquivo..\n");
+            jLabel5.setText("Erro na extração dos dados");   
         }
     
         return null;
@@ -214,6 +228,7 @@ public class ClienteSocket extends javax.swing.JFrame {
             }
         }catch (NullPointerException e) {
             System.out.println("Erro: verifique os dados informados..\n");
+            jLabel5.setText("Dados incorretos");   
         }
         return false;
     }
@@ -224,28 +239,15 @@ public class ClienteSocket extends javax.swing.JFrame {
             new ClienteSocket().setVisible(true);
         }
         });
-        
-        Timer timer = new Timer(); 
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override public void run() { 
-            
-            
-            
-            System.out.println("Executando a primeira vez em " +
-            "1 segundo e as demais a cada 5 segundos!");
-            
-        }
-
-            }, 5000, 5000);
     }
-    
-    
+        
     private javax.swing.JButton jButtonArquivo;
     private javax.swing.JButton jButtonEnviar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabelTamanho;
     private javax.swing.JTextField jTextFieldIP;
     private javax.swing.JTextField jTextFieldNome;
