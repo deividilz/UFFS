@@ -10,8 +10,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -27,7 +25,7 @@ public class ClienteSocket extends javax.swing.JFrame {
     private static final long serialVersionUID = 1L;
 
     public ClienteSocket() {
-            initComponents();
+        initComponents();
     }
 
     private void initComponents() {
@@ -160,7 +158,7 @@ public class ClienteSocket extends javax.swing.JFrame {
             arquivo.setTamanhoKB(kbSize);
             arquivo.setIpDestino(jTextFieldIP.getText());
             arquivo.setPortaDestino(jTextFieldPorta.getText());
-            String diretorio = "C:/Users/Deividi/Documents/GitHub/UFFS/Trabalhos antigos/Computação Distribuída/Trabalho 1 - Servidor backup/Servidor backup - Arquivos";
+            String diretorio = "C:/Users/User/Documents/GitHub/UFFS/Trabalhos antigos/Computação Distribuída/Trabalho 1 - Servidor backup/Servidor backup - Arquivos";
             arquivo.setDiretorioDestino(diretorio);
         }
     

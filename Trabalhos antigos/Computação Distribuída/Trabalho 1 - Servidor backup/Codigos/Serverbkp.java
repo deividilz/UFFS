@@ -51,7 +51,7 @@ public class Serverbkp {
         }
     }
 
-    public Server (final int port) throws IOException {
+    public void Server (final int port) throws IOException {
         try (ServerSocket server = new ServerSocket(port)) {
             for(;;){
                 new InicializaServidor(server.accept()).start();

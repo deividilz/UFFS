@@ -54,6 +54,6 @@ public class Arquivo implements Serializable {
         return diretorioDestino;
     }
     public void setDiretorioDestino(String diretorioDestino) {
-    this.diretorioDestino = diretorioDestino;
+        this.diretorioDestino = diretorioDestino;
     }
 }

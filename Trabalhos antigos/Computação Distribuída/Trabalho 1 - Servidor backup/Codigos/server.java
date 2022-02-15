@@ -1,6 +1,5 @@
 package Codigos;
 
-import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -11,49 +10,17 @@ import java.net.Socket;
 
 public class Server extends javax.swing.JFrame {
 
-    public class InicializaServidor extends Thread{
-
-        private final Socket socket;
-        private Arquivo arquivo;
-        private final byte[] objectAsByte;
-
-        public InicializaServidor(final Socket cliente) throws IOException {
-            this.socket = cliente;
-            this.objectAsByte = new byte[socket.getReceiveBufferSize()];
-            System.out.println("Inicializando o servidor\n");
-        }    
+    private static javax.swing.JLabel jLabelTamanho;
+    private static javax.swing.JLabel jLabelTamanhoImprimir;
+    private static javax.swing.JLabel jLabelInfo;
+    private static javax.swing.JLabel jLabelPorta;
+    private static javax.swing.JLabel jLabelNomeArquivo;
+    private static javax.swing.JLabel jLabelNomeImprimir;
+    private static javax.swing.JTextField jTextField1;
+    private static javax.swing.JButton jButtonAbrir;
+    private static javax.swing.JButton jButton2;
     
-        public void run(){
-            try {
-               
-                System.out.println("Info: aguardando o envio do arquivo pelo cliente.\n");
-                
-               // byte[] objectAsByte = new byte[socket.getReceiveBufferSize()];
-
-                System.out.println("objectAsByte: " + objectAsByte);
-
-                BufferedInputStream buffer = new BufferedInputStream(this.socket.getInputStream());
-
-                buffer.read(this.objectAsByte);
-                
-                System.out.println("Buffer: " + buffer);
-
-                arquivo = getObjectFromByte(this.objectAsByte);
-
-                System.out.println("arquivo: " + arquivo);
-
-                String diretorio = arquivo.getDiretorioDestino().endsWith("/") ? arquivo.getDiretorioDestino() + arquivo.getNome() : arquivo.getDiretorioDestino() + "/" + arquivo.getNome();
-                
-                System.out.println("Escrevendo arquivo " + diretorio);
-
-                FileOutputStream fos = new FileOutputStream(diretorio);
-                fos.write(arquivo.getConteudo());
-                fos.close();
-            }catch(Exception e){
-                System.out.println("Erro: " + e.toString());
-            }
-        }
-    }
+    private static Arquivo arquivo;
 
     public Server(){
         initComponents();
@@ -64,11 +31,11 @@ public class Server extends javax.swing.JFrame {
         jLabelInfo = new javax.swing.JLabel();
         jLabelPorta = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
-        jButtonAbrir = new javax.swing.JButton();
         jLabelNomeArquivo = new javax.swing.JLabel();
         jLabelNomeImprimir = new javax.swing.JLabel();
         jLabelTamanho = new javax.swing.JLabel();
         jLabelTamanhoImprimir = new javax.swing.JLabel();
+        jButtonAbrir = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
 
         this.setLocationRelativeTo(null);
@@ -78,12 +45,33 @@ public class Server extends javax.swing.JFrame {
 
         jLabelPorta.setText("Porta");
 
-        //jTextField1.setText("");
-
         jButtonAbrir.setText("Abrir porta");
         jButtonAbrir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonAbrirActionPerformed(evt);
+                
+                new Thread (new Runnable() {
+                    @Override
+                    public void run() {
+
+                        try{
+                            Integer.parseInt(jTextField1.getText().trim());
+                            jLabelInfo.setText("Servidor online");
+                            System.out.println("Online: ");
+                            System.out.println(jLabelInfo);
+
+                            jButtonAbrirActionPerformed(evt);
+                        }catch(Exception e){
+                            jLabelInfo.setText("Servidor com porta inválida");
+                        }
+                        
+                   }
+                }).start();
+            }
+        });
+
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                System.exit(0);          
             }
         });
 
@@ -146,13 +134,64 @@ public class Server extends javax.swing.JFrame {
         );
         pack();
     }
+    
+    public class InicializaServidor extends Thread{
+
+        private final Socket socket;
+        //private Arquivo arquivo;
+        private final byte[] objectAsByte;
+
+        public InicializaServidor(final Socket cliente) throws IOException {
+            this.socket = cliente;
+            this.objectAsByte = new byte[socket.getReceiveBufferSize()];            
+        }    
+    
+        public void run(){
+            try {
+            
+                System.out.println("Info: aguardando o envio do arquivo pelo cliente.\n");
+                
+               // byte[] objectAsByte = new byte[socket.getReceiveBufferSize()];
+
+                System.out.println("objectAsByte: " + objectAsByte);
+
+                BufferedInputStream buffer = new BufferedInputStream(this.socket.getInputStream());
+
+                buffer.read(this.objectAsByte);
+                
+                System.out.println("Buffer: " + buffer);
+
+                arquivo = getObjectFromByte(this.objectAsByte);
+
+                System.out.println(arquivo);
+
+                jLabelNomeImprimir.setText(arquivo.getNome());
+                
+                long kbSize = arquivo.getTamanhoKB();
+                jLabelTamanhoImprimir.setText(kbSize + " KB");
+                System.out.println("Tamanho: "+kbSize);
+
+                String diretorio = arquivo.getDiretorioDestino().endsWith("/") ? arquivo.getDiretorioDestino() + arquivo.getNome() : arquivo.getDiretorioDestino() + "/" + arquivo.getNome();
+                
+                System.out.println("Escrevendo arquivo " + diretorio);
+
+                FileOutputStream fos = new FileOutputStream(diretorio);
+                fos.write(arquivo.getConteudo());
+                fos.close();
+            }catch(Exception e){
+                System.out.println("Erro: " + e.toString());
+            }
+        }
+    }
 
     public Server (final int port) throws IOException {
         System.out.println("Iniciou - porta: " + port);
 
         try (ServerSocket server = new ServerSocket(port)) {
             for(;;){
+                //jLabelInfo = new javax.swing.JLabel();
                 new InicializaServidor(server.accept()).start();
+                
             }
         }catch(Exception e){
             System.out.println("Erro: " + e.getMessage());
@@ -161,9 +200,7 @@ public class Server extends javax.swing.JFrame {
 
     protected void jButtonAbrirActionPerformed(java.awt.event.ActionEvent evt) {
         try{
-            jLabelTamanho.setText("Servidor online");
-            System.out.println("Online: ");
-            new Server(Integer.parseInt(jTextField1.getText().trim()));
+            new Server(Integer.parseInt(jTextField1.getText().trim()));        
         }catch(Exception e){
             System.out.println("Erro1: " + e.getMessage());
         }
@@ -196,14 +233,4 @@ public class Server extends javax.swing.JFrame {
         }
         return (Arquivo) obj;
     }
-
-    private javax.swing.JButton jButtonAbrir;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabelTamanho;
-    private javax.swing.JLabel jLabelTamanhoImprimir;
-    private javax.swing.JLabel jLabelInfo;
-    private javax.swing.JLabel jLabelPorta;
-    private javax.swing.JLabel jLabelNomeArquivo;
-    private javax.swing.JLabel jLabelNomeImprimir;
-    private javax.swing.JTextField jTextField1;
 }
