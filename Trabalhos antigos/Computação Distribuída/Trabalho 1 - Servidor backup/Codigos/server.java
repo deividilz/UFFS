@@ -1,5 +1,6 @@
 package Codigos;
 
+//IMPORT DAS BIBLIOTECAS NECESSÁRIAS
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -8,8 +9,10 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+//CLASSE SERVER PRINCIPAL
 public class Server extends javax.swing.JFrame {
 
+    //INSTANCIANDO AS VARIÁVEIS PARA O MENU GRÁFICO
     private static javax.swing.JLabel jLabelTamanho;
     private static javax.swing.JLabel jLabelTamanhoImprimir;
     private static javax.swing.JLabel jLabelInfo;
@@ -20,12 +23,13 @@ public class Server extends javax.swing.JFrame {
     private static javax.swing.JButton jButtonAbrir;
     private static javax.swing.JButton jButton2;
     
-    private static Arquivo arquivo;
+    private static Arquivo arquivo; 
 
-    public Server(){
-        initComponents();
+    public Server(){        //SERVER QUE CHAMARÁ A FUNÇÃO PARA INICIAR OS COMPONENTES
+        initComponents();   //EXECUTA A FUNÇÃO PARA INICIAR OS COMPONENTES
     }
 
+    //FUNÇÃO SEM RETORNO QUE INSTANCIA OS COMPONENTES GRÁFICOS
     private void initComponents() {
 
         jLabelInfo = new javax.swing.JLabel();
@@ -42,49 +46,45 @@ public class Server extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabelInfo.setText("Servidor offline");
-
         jLabelPorta.setText("Porta");
 
         jButtonAbrir.setText("Abrir porta");
-        jButtonAbrir.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButtonAbrir.addActionListener(new java.awt.event.ActionListener() {    //FUNÇÃO PARA O EVENTO DE ABRIR PORTA DO SERVIDOR
+            public void actionPerformed(java.awt.event.ActionEvent evt) {       //PASSANDO O EVENTO POR PARAMETRO
                 
+                //THREAD PARA ATUALIZAR O COMPONENTE DURANTE EXECUÇÃO
                 new Thread (new Runnable() {
                     @Override
                     public void run() {
-
-                        try{
+                        try{    //VAI TENTAR ALTERAR O TEXTO DO COMPONENTE
                             Integer.parseInt(jTextField1.getText().trim());
                             jLabelInfo.setText("Servidor online");
                             System.out.println("Online: ");
                             System.out.println(jLabelInfo);
 
-                            jButtonAbrirActionPerformed(evt);
-                        }catch(Exception e){
+                            jButtonAbrirActionPerformed(evt); //CHAMA O EVENTO CASO PRESSIONADO O BOTÃO
+                        }catch(Exception e){ //CASO HOUVER ERRO
                             jLabelInfo.setText("Servidor com porta inválida");
                         }
-                        
                    }
-                }).start();
+                }).start(); //CRIANDO A THREAD
             }
         });
 
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.exit(0);          
+        jButton2.addActionListener(new java.awt.event.ActionListener() {    //FUNÇÃO PARA O BOTÃO DE EXIT
+            public void actionPerformed(java.awt.event.ActionEvent evt) {   //PASSANDO O EVENTO POR PARAMETRO
+                System.exit(0);                                             //FECHA A INTERFACE E FINALIZA O SERVIDOR
             }
         });
 
+        //ALTERANDO O TEXTO DOS COMPONENTES GRÁFICOS
         jLabelNomeArquivo.setText("Nome arquivo");
-
         jLabelNomeImprimir.setText(" ");
-
         jLabelTamanho.setText("Tamanho");
-
         jLabelTamanhoImprimir.setText(" ");
-
         jButton2.setText("Encerrar servidor");
 
+        //CRIAÇÃO DE TODO O LAYOUT GRÁFICO
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -135,46 +135,49 @@ public class Server extends javax.swing.JFrame {
         pack();
     }
     
+    //CLASSE PARA INICIALIZAR
     public class InicializaServidor extends Thread{
 
+        //DECLARAÇÃO DAS VARIÁVEIS
         private final Socket socket;
-        //private Arquivo arquivo;
         private final byte[] objectAsByte;
 
+        //FUNÇÃO PARA INICIALIZAR O SERVIDOR PASSANDO COMO PARÂMETRO O SOCKET DO CLIENTE PARA CRIAR A CONEXÃO
         public InicializaServidor(final Socket cliente) throws IOException {
             this.socket = cliente;
             this.objectAsByte = new byte[socket.getReceiveBufferSize()];            
         }    
-    
+        
+        //FUNÇÃO QUE IRÁ RECEBER O ARQUIVO ENVIADO PELO CLIENTE/USUÁRIO
         public void run(){
-            try {
-            
+            try {            
                 System.out.println("Info: aguardando o envio do arquivo pelo cliente.\n");
-                
-               // byte[] objectAsByte = new byte[socket.getReceiveBufferSize()];
 
                 System.out.println("objectAsByte: " + objectAsByte);
 
-                BufferedInputStream buffer = new BufferedInputStream(this.socket.getInputStream());
+                BufferedInputStream buffer = new BufferedInputStream(this.socket.getInputStream()); //CRIA UM BUFFER PARA RECEBER A ENTRADA DO SOCKET
 
-                buffer.read(this.objectAsByte);
+                buffer.read(this.objectAsByte); //FICA AGUARDANDO A LEITURA DO OBJETO DE ENTRADA
                 
                 System.out.println("Buffer: " + buffer);
 
-                arquivo = getObjectFromByte(this.objectAsByte);
+                arquivo = getObjectFromByte(this.objectAsByte); //ARQUIVO RECEBE O OBJETO
 
                 System.out.println(arquivo);
 
-                jLabelNomeImprimir.setText(arquivo.getNome());
+                jLabelNomeImprimir.setText(arquivo.getNome()); //ALTERA O NOME NA INTERFACE GRÁFICA
                 
+                //PEGA O TAMANHO DO ARQUIVO RECEBIDO
                 long kbSize = arquivo.getTamanhoKB();
                 jLabelTamanhoImprimir.setText(kbSize + " KB");
                 System.out.println("Tamanho: "+kbSize);
 
+                //STRING QUE IRÁ CONTER TODO O DIRETÓRIO PARA SALVAR O ARQUIVO
                 String diretorio = arquivo.getDiretorioDestino().endsWith("/") ? arquivo.getDiretorioDestino() + arquivo.getNome() : arquivo.getDiretorioDestino() + "/" + arquivo.getNome();
                 
                 System.out.println("Escrevendo arquivo " + diretorio);
 
+                //ARQUIVO QUE FOI RECEBIDO É SALVO/ESCRITO
                 FileOutputStream fos = new FileOutputStream(diretorio);
                 fos.write(arquivo.getConteudo());
                 fos.close();
@@ -184,47 +187,48 @@ public class Server extends javax.swing.JFrame {
         }
     }
 
+    //FUNÇÃO SERVIDOR QUE RECEBE A PORTA QUE SERÁ ABERTA COMO PARAMETRO
     public Server (final int port) throws IOException {
         System.out.println("Iniciou - porta: " + port);
-
-        try (ServerSocket server = new ServerSocket(port)) {
+        try (ServerSocket server = new ServerSocket(port)) { //TENTA ABRIR O SOCKET COM A PORTA INFORMADA
             for(;;){
-                //jLabelInfo = new javax.swing.JLabel();
-                new InicializaServidor(server.accept()).start();
-                
+                new InicializaServidor(server.accept()).start(); //INSTANCIA UM NOVO SERVIDOR, ACEITANDO O CLIENTE CONECTADO
             }
         }catch(Exception e){
             System.out.println("Erro: " + e.getMessage());
         }
     }
 
+    //FUNÇÃO PARA O BOTÃO QUE IRÁ ABRIR A PORTA DO SERVIDOR
     protected void jButtonAbrirActionPerformed(java.awt.event.ActionEvent evt) {
         try{
-            new Server(Integer.parseInt(jTextField1.getText().trim()));        
+            new Server(Integer.parseInt(jTextField1.getText().trim())); //TENTA CRIR UM SERVIDOR PASSANDO A PORTA INFORMADA COMO PARAMETRO
         }catch(Exception e){
             System.out.println("Erro1: " + e.getMessage());
         }
     }
 
+    //FUNÇÃO PRINCIPAL QUE IRÁ INICIALIZAR O PROGRAMA
     public static void main(String[] args) throws IOException, ClassNotFoundException{
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        java.awt.EventQueue.invokeLater(new Runnable() { //CRIA UMA FILA DE EVENTOS
         public void run() {
-            new Server().setVisible(true);
+            new Server().setVisible(true); //CRIA UM NOVO SERVIDOR DEFININDO A VISIBILIDADE COMO ATIVA
         }
         });
     }
 
+    //FUNÇÃO DO ARQUIVO PARA PEGAR OS DADOS NECESSÁRIOS
     private static Arquivo getObjectFromByte(byte[] objectAsByte) {
-        Object obj = null;
-        ByteArrayInputStream bis = null;
-        ObjectInputStream ois = null;
+        Object obj = null;                  //INSTANCIA UM OBJETO
+        ByteArrayInputStream bis = null;    //INSTANCIA UM ARRAY DE BYTES
+        ObjectInputStream ois = null;       //INSTANCIA UM OBJETO DE ENTRADA
         try {
-            bis = new ByteArrayInputStream(objectAsByte);
-            ois = new ObjectInputStream(bis);
-            obj = ois.readObject();
+            bis = new ByteArrayInputStream(objectAsByte);   //OBJETO VAI RECEBER O ARRAY DE BYTES QUE CONTEM NO DADO
+            ois = new ObjectInputStream(bis);               //RECEBE UM OBJETO DE ENTRADA
+            obj = ois.readObject();                         //LE O OBJETO RECEBIDO
 
-            bis.close();
-            ois.close();
+            bis.close();    //FECHA O OBJETO INSTANCIADO
+            ois.close();    //FECHA A ENTRADA DO OBJETO
 
         } catch (IOException e) {
             System.out.println("Erro: " + e.toString());
