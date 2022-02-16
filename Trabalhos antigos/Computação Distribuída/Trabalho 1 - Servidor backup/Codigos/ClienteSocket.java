@@ -7,29 +7,31 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Date;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 //CLASSE CLIENTE SOCKET PRINCIPAL
 public class ClienteSocket extends javax.swing.JFrame {
     //INSTANCIANDO AS VARIÁVEIS PARA O MENU GRÁFICO
     private javax.swing.JButton jButtonArquivo;
     private javax.swing.JButton jButtonEnviar;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabelArquivo;
+    private javax.swing.JLabel jLabelIP;
+    private javax.swing.JLabel jLabelPorta;
+    private javax.swing.JLabel jLabelTamanhoL;
+    private javax.swing.JLabel jLabelAguardando;
     private javax.swing.JLabel jLabelTamanho;
     private javax.swing.JTextField jTextFieldIP;
     private javax.swing.JTextField jTextFieldNome;
     private javax.swing.JTextField jTextFieldPorta;
+    private javax.swing.JTextField jTextField1;
 
-    private long tamanhoPermitidoKB = 5120; //DEFINE O TAMANHO MÁXIMO DO ARQUIVO
     private Arquivo arquivo;   
 
     private static final long serialVersionUID = 1L;
@@ -40,21 +42,22 @@ public class ClienteSocket extends javax.swing.JFrame {
 
     //FUNÇÃO SEM RETORNO QUE INSTANCIA OS COMPONENTES GRAFICOS
     private void initComponents() {
-        jLabel1 = new javax.swing.JLabel();
+        jLabelArquivo = new javax.swing.JLabel();
         jTextFieldNome = new javax.swing.JTextField();
         jButtonArquivo = new javax.swing.JButton();
         jLabelTamanho = new javax.swing.JLabel();
         jButtonEnviar = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
+        jLabelIP = new javax.swing.JLabel();
         jTextFieldIP = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        jLabelPorta = new javax.swing.JLabel();
+        jLabelTamanhoL = new javax.swing.JLabel();
         jTextFieldPorta = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
+        jLabelAguardando = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
         
         this.setLocationRelativeTo(null);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        jLabel1.setText("Arquivo carregado");
+        jLabelArquivo.setText("Selecione o arquivo");
 
         jTextFieldNome.setEnabled(false);
 
@@ -62,6 +65,7 @@ public class ClienteSocket extends javax.swing.JFrame {
         jButtonArquivo.addActionListener(new java.awt.event.ActionListener() {  //FUNÇÃO PARA SELECIONAR O ARQUIVO
             public void actionPerformed(java.awt.event.ActionEvent evt) {       //PASSANDO O EVENTO POR PARAMETRO
                 jButtonArquivoActionPerformed(evt);                             //CHAMA A FUNÇÃO PASSANDO O EVENTO OCORRIDO
+                jLabelArquivo.setText("Arquivo carregado");
             }
         });
 
@@ -76,12 +80,19 @@ public class ClienteSocket extends javax.swing.JFrame {
         });
 
         //ALTERANDO O TEXTO DOS COMPONENTES GRÁFICOS
-        jLabel2.setText("IP");
-        jLabel3.setText("Porta");
-        jLabel4.setText("Tamanho");
-        jLabel5.setText("Aguardando envio");
+        jLabelIP.setText("IP");
+        jLabelPorta.setText("Porta");
+        jLabelTamanhoL.setText("Tamanho");
+        jLabelAguardando.setText("Aguardando envio");
 
-        //CRIAÇÃO DE TODO O LAYOUT GRÁFICO
+        jTextField1.setText("Informe aqui um diretorio");
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+
+        //CRIAÇÃO DO LAYOUT GRÁFICO
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(jPanel1Layout);
             jPanel1Layout.setHorizontalGroup(
@@ -90,45 +101,49 @@ public class ClienteSocket extends javax.swing.JFrame {
                     .addGap(16, 16, 16)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(jButtonEnviar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
+                        .addComponent(jLabelArquivo)
                         .addComponent(jButtonArquivo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jTextFieldNome)
                         .addGroup(jPanel1Layout.createSequentialGroup()
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jLabelTamanhoL, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
+                                .addComponent(jLabelPorta, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabelIP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGap(18, 18, 18)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabelTamanho)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel5))
+                                .addComponent(jLabelAguardando))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextFieldIP, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                             .addComponent(jTextFieldPorta))))
-                .addContainerGap(17, Short.MAX_VALUE))
+                        .addComponent(jTextField1))
+                    .addContainerGap(17, Short.MAX_VALUE))
             );
             jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(14, 14, 14)
-                    .addComponent(jLabel1)
+                    .addComponent(jLabelArquivo)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(jTextFieldNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(18, 18, 18)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabelIP, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jTextFieldIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGap(8, 8, 8)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel3)
+                        .addComponent(jLabelPorta)
                         .addComponent(jTextFieldPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGap(18,18,18)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel4)
+                        .addComponent(jLabelTamanhoL)
                         .addComponent(jLabelTamanho)
-                        .addComponent(jLabel5))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
+                        .addComponent(jLabelAguardando))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)   
+                    .addGap(18, 18, 18)
                     .addComponent(jButtonArquivo)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addComponent(jButtonEnviar)
@@ -137,6 +152,10 @@ public class ClienteSocket extends javax.swing.JFrame {
         pack();
     }
 
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        // TODO add your handling code here:
+    }  
+    
     private void jButtonEnviarActionPerformed(java.awt.event.ActionEvent evt) {     //FUNÇÃO PARA O EVENTO DE ENVIAR O ARQUIVO PARA O SERVIDOR
         enviarArquivoServidor();
     }
@@ -146,72 +165,96 @@ public class ClienteSocket extends javax.swing.JFrame {
         try {
         
         //CRIA UMA VARIAVEL PARA ESCOLHER O ARQUIVO
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        chooser.setDialogTitle("Escolha o arquivo");
+        JFileChooser escolha = new JFileChooser();
+        escolha.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        escolha.setDialogTitle("Escolha o arquivo");
             
-        if (chooser.showOpenDialog(this) == JFileChooser.OPEN_DIALOG) { //SE SELECIONAR O ARQUIVO
-            File fileSelected = chooser.getSelectedFile();  //VARIAVEL RECEBE O ARQUIVO SELECIONADO
+        if (escolha.showOpenDialog(this) == JFileChooser.OPEN_DIALOG) { //SE SELECIONAR O ARQUIVO
+            File arquivoSelecionado = escolha.getSelectedFile();  //VARIAVEL RECEBE O ARQUIVO SELECIONADO
     
-            byte[] bFile = new byte[(int) fileSelected.length()];   //EXTRAI OS BYTES DA VARIÁVEL
-            fis = new FileInputStream(fileSelected);                //CRIA UM ARQUIVO DE ENTRADA
+            byte[] bFile = new byte[(int) arquivoSelecionado.length()];   //EXTRAI OS BYTES DA VARIÁVEL
+            fis = new FileInputStream(arquivoSelecionado);                //CRIA UM ARQUIVO DE ENTRADA
             fis.read(bFile);                                        //FAZ A LEITURA DOS BYTES
             fis.close();                                            //FECHA A ESCOLHA DE ARQUIVOS
     
             //DEFINE O TAMANHO DO ARQUIVO TRANSFORMANDO PARA KBs
-            long kbSize = fileSelected.length() / 1024;
-            jTextFieldNome.setText(fileSelected.getName());
-            jLabelTamanho.setText(kbSize + " KB");
+            long kbTamanho = arquivoSelecionado.length() / 1024;
+            jTextFieldNome.setText(arquivoSelecionado.getName());
+            jLabelTamanho.setText(kbTamanho + " KB");
             
             //CRIA UM NOVO ARQUIVO QUE É RESPONSÁVEL POR RECEBER OS DADOS
             arquivo = new Arquivo();
             arquivo.setConteudo(bFile);                 //DEFINE O CONTEUDO DO ARQUIVO
             arquivo.setDataHoraUpload(new Date());      //DEFINE A HORA DE UPLOAD
-            arquivo.setNome(fileSelected.getName());    //DEFINE O NOME DO ARQUIVO
-            arquivo.setTamanhoKB(kbSize);               //DEFINE O TAMANHO EM KBs
+            arquivo.setNome(arquivoSelecionado.getName());    //DEFINE O NOME DO ARQUIVO
+            arquivo.setTamanhoKB(kbTamanho);               //DEFINE O TAMANHO EM KBs
             arquivo.setIpDestino(jTextFieldIP.getText()); //DEFINE O IP DE DESTINO (SERVIDOR)
             arquivo.setPortaDestino(jTextFieldPorta.getText()); //DEFINE A PORTA DE DESTINO (SERVIDOR)
             //VARIAVEL COM O DIRETORIO
-            String diretorio = "C:/Users/User/Documents/GitHub/UFFS/Trabalhos antigos/Computação Distribuída/Trabalho 1 - Servidor backup/Servidor backup - Arquivos";
+            //String diretorio = "C:/Users/Deividi/Documents/GitHub/UFFS/Trabalhos antigos/Computação Distribuída/Trabalho 1 - Servidor backup/Servidor backup - Arquivos";
+            String diretorio = jTextField1.getText();
             arquivo.setDiretorioDestino(diretorio); //DEFINE O DIRETÓRIO DO ARQUIVO
         }
     
         } catch (Exception e) {
             System.out.println("Erro: não foi possível enviar o arquivo, verifique os dados..");
-            jLabel5.setText("Falha no envio");   
+            jLabelAguardando.setText("Falha no envio");   
         }
     }
     
     //FUNÇÃO PARA ENVIAR O ARQUIVO PARA O SERVIDOR
     private void enviarArquivoServidor(){
-        if (validaArquivo() == true){   //EFETUA A VALIDAÇÃO DO ARQUIVO SELECIONADO
-            try {
-                Socket socket = new Socket(jTextFieldIP.getText().trim(),  //CRIA UM SOCKET COM OS DADOS DE DESTINO
-                Integer.parseInt(jTextFieldPorta.getText().trim()));       //COM A PORTA DE DESTINO
-        
-                BufferedOutputStream bf = new BufferedOutputStream(socket.getOutputStream());   //DEFINE UM BUFFER DE SAIDA PARA O ENVIO
-        
-                byte[] bytea = serializarArquivo();     //EXTRAI OS DADOS O OBJETO EM BYTES PARA PODER COMPACTA-LOS NOVAMENTE NO SERVIDOR
-                bf.write(bytea);                        //ESCREVE OS BYTES
-                bf.flush();                             //FORÇA O SALVAMENTO EM ARQUIVO
-                bf.close();
-                //socket.close();
-                System.out.println("Info: enviado com sucesso.");
-                jLabel5.setText("Enviado com sucesso");
-                
-            } catch (UnknownHostException e) {
-                System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
-                jLabel5.setText("Servidor não encontrado");
-            } catch (IOException e) {
-                System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
-                jLabel5.setText("Servidor não encontrado");
-            }catch(NullPointerException e){
-                System.out.println("Erro: dados não informados corretamente..\n");  
-                jLabel5.setText("Dados preenchidos incorretos");  
-            }catch(NumberFormatException e){
-                System.out.println("Erro: dados não informados corretamente..\n"); 
-                jLabel5.setText("Dados preenchidos incorretos");   
+
+        //THREAD PARA ATUALIZAR O COMPONENTE DURANTE EXECUÇÃO
+        new Thread (new Runnable() {
+                @Override
+                public void run() {
+                    while(true) {
+                        
+                        System.out.println("Dados :");
+                        try {
+                          MulticastSocket mcs = new MulticastSocket(12347);
+                          InetAddress grp = InetAddress.getByName("239.0.0.1");
+                          mcs.joinGroup(grp);
+                          byte rec[] = new byte[256];
+                          DatagramPacket pkg = new DatagramPacket(rec, rec.length);
+                          mcs.receive(pkg);
+                          String data = new String(pkg.getData());
+                          System.out.println("Dados recebidos:" + data);
+                      }
+                      catch(Exception e) {
+                        System.out.println("Erro: " + e.getMessage());
+                      }
+                    }
             }
+            }).start(); //CRIANDO A THREAD
+        
+        try {
+            Socket socket = new Socket(jTextFieldIP.getText().trim(),  //CRIA UM SOCKET COM OS DADOS DE DESTINO
+            Integer.parseInt(jTextFieldPorta.getText().trim()));       //COM A PORTA DE DESTINO
+    
+            BufferedOutputStream bf = new BufferedOutputStream(socket.getOutputStream());   //DEFINE UM BUFFER DE SAIDA PARA O ENVIO
+    
+            byte[] bytea = serializarArquivo();     //EXTRAI OS DADOS O OBJETO EM BYTES PARA PODER COMPACTA-LOS NOVAMENTE NO SERVIDOR
+            bf.write(bytea);                        //ESCREVE OS BYTES
+            bf.flush();                             //FORÇA O SALVAMENTO EM ARQUIVO
+            bf.close();
+            //socket.close();
+            System.out.println("Info: enviado com sucesso.");
+            jLabelAguardando.setText("Enviado com sucesso");
+            
+        } catch (UnknownHostException e) {
+            System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
+            jLabelAguardando.setText("Servidor não encontrado");
+        } catch (IOException e) {
+            System.out.println("Erro: não foi possível encontrar o servidor informado..\n");
+            jLabelAguardando.setText("Servidor não encontrado");
+        }catch(NullPointerException e){
+            System.out.println("Erro: dados não informados corretamente..\n");  
+            jLabelAguardando.setText("Dados preenchidos incorretos");  
+        }catch(NumberFormatException e){
+            System.out.println("Erro: dados não informados corretamente..\n"); 
+            jLabelAguardando.setText("Dados preenchidos incorretos");   
         }
     }
     
@@ -225,27 +268,10 @@ public class ClienteSocket extends javax.swing.JFrame {
             return bao.toByteArray();                                   //RETORNA O ARRAY COM OS DADOS DO ARQUIVO EXTRAIDO
         } catch (IOException e) {
             System.out.println("Erro: não foi possível extrair os dados do arquivo..\n");
-            jLabel5.setText("Erro na extração dos dados");   
+            jLabelAguardando.setText("Erro na extração dos dados");   
         }
     
         return null;
-    }
-
-    //FUNÇÃO PARA VALIDAR O ARQUIVO
-    private boolean validaArquivo(){
-        try{
-            if (arquivo.getTamanhoKB() > tamanhoPermitidoKB){  //CASO O TAMANHO FOR MAIOR QUE O PERMITIDO, NAO CARREGA, RETORNANDO FALSE
-                JOptionPane.showMessageDialog(this,
-                    "Tamanho máximo permitido atingido ("+(tamanhoPermitidoKB/1024)+")");
-                return false;
-            }else{
-                return true;                                   //SE FOR ACEITO, RETORNA TRUE
-            }
-        }catch (NullPointerException e) {
-            System.out.println("Erro: verifique os dados informados..\n");
-            jLabel5.setText("Dados incorretos");   
-        }
-        return false;
     }
     
     //FUNÇÃO PRINCIPAL QUE CRIA O CLIENTE SOCKET COM VISUALIZAÇÃO ATIVA

@@ -6,11 +6,14 @@ import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 //CLASSE SERVER PRINCIPAL
-public class Server extends javax.swing.JFrame {
+public class server extends javax.swing.JFrame {
 
     //INSTANCIANDO AS VARIÁVEIS PARA O MENU GRÁFICO
     private static javax.swing.JLabel jLabelTamanho;
@@ -25,7 +28,7 @@ public class Server extends javax.swing.JFrame {
     
     private static Arquivo arquivo; 
 
-    public Server(){        //SERVER QUE CHAMARÁ A FUNÇÃO PARA INICIAR OS COMPONENTES
+    public server(){        //SERVER QUE CHAMARÁ A FUNÇÃO PARA INICIAR OS COMPONENTES
         initComponents();   //EXECUTA A FUNÇÃO PARA INICIAR OS COMPONENTES
     }
 
@@ -56,6 +59,19 @@ public class Server extends javax.swing.JFrame {
                 new Thread (new Runnable() {
                     @Override
                     public void run() {
+
+                        try {
+                            byte[] b = "blz ??".getBytes();
+                            InetAddress addr = InetAddress.getByName("239.0.0.1");
+                            DatagramSocket ds = new DatagramSocket();
+                            DatagramPacket pkg = new DatagramPacket(b, b.length, addr, Integer.parseInt(jTextField1.getText().trim()));
+                            System.out.println("enviando...");
+                            ds.send(pkg);
+                          }
+                          catch(Exception e) {
+                            System.out.println("Nao foi possivel enviar a mensagem");
+                          }
+
                         try{    //VAI TENTAR ALTERAR O TEXTO DO COMPONENTE
                             Integer.parseInt(jTextField1.getText().trim());
                             jLabelInfo.setText("Servidor online");
@@ -66,6 +82,8 @@ public class Server extends javax.swing.JFrame {
                         }catch(Exception e){ //CASO HOUVER ERRO
                             jLabelInfo.setText("Servidor com porta inválida");
                         }
+                        
+                        
                    }
                 }).start(); //CRIANDO A THREAD
             }
@@ -80,11 +98,12 @@ public class Server extends javax.swing.JFrame {
         //ALTERANDO O TEXTO DOS COMPONENTES GRÁFICOS
         jLabelNomeArquivo.setText("Nome arquivo");
         jLabelNomeImprimir.setText(" ");
-        jLabelTamanho.setText("Tamanho");
+        jLabelTamanho.setText("");
         jLabelTamanhoImprimir.setText(" ");
         jButton2.setText("Encerrar servidor");
 
-        //CRIAÇÃO DE TODO O LAYOUT GRÁFICO
+        //CRIAÇÃO DO LAYOUT GRÁFICO
+        
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -140,12 +159,12 @@ public class Server extends javax.swing.JFrame {
 
         //DECLARAÇÃO DAS VARIÁVEIS
         private final Socket socket;
-        private final byte[] objectAsByte;
+        private final byte[] objetoByte;
 
         //FUNÇÃO PARA INICIALIZAR O SERVIDOR PASSANDO COMO PARÂMETRO O SOCKET DO CLIENTE PARA CRIAR A CONEXÃO
         public InicializaServidor(final Socket cliente) throws IOException {
             this.socket = cliente;
-            this.objectAsByte = new byte[socket.getReceiveBufferSize()];            
+            this.objetoByte = new byte[socket.getReceiveBufferSize()];            
         }    
         
         //FUNÇÃO QUE IRÁ RECEBER O ARQUIVO ENVIADO PELO CLIENTE/USUÁRIO
@@ -153,26 +172,26 @@ public class Server extends javax.swing.JFrame {
             try {            
                 System.out.println("Info: aguardando o envio do arquivo pelo cliente.\n");
 
-                System.out.println("objectAsByte: " + objectAsByte);
+                System.out.println("objetoByte: " + objetoByte);
 
                 BufferedInputStream buffer = new BufferedInputStream(this.socket.getInputStream()); //CRIA UM BUFFER PARA RECEBER A ENTRADA DO SOCKET
 
-                buffer.read(this.objectAsByte); //FICA AGUARDANDO A LEITURA DO OBJETO DE ENTRADA
+                buffer.read(this.objetoByte); //FICA AGUARDANDO A LEITURA DO OBJETO DE ENTRADA
                 
                 System.out.println("Buffer: " + buffer);
 
-                arquivo = getObjectFromByte(this.objectAsByte); //ARQUIVO RECEBE O OBJETO
+                arquivo = pegaObjetoByte(this.objetoByte); //ARQUIVO RECEBE O OBJETO
 
                 System.out.println(arquivo);
 
                 jLabelNomeImprimir.setText(arquivo.getNome()); //ALTERA O NOME NA INTERFACE GRÁFICA
                 
-                //PEGA O TAMANHO DO ARQUIVO RECEBIDO
+                /*//PEGA O TAMANHO DO ARQUIVO RECEBIDO
                 long kbSize = arquivo.getTamanhoKB();
                 jLabelTamanhoImprimir.setText(kbSize + " KB");
-                System.out.println("Tamanho: "+kbSize);
+                System.out.println("Tamanho: "+kbSize);*/
 
-                //STRING QUE IRÁ CONTER TODO O DIRETÓRIO PARA SALVAR O ARQUIVO
+                //STRING QUE IRÁ CONTER O DIRETÓRIO PARA SALVAR O ARQUIVO
                 String diretorio = arquivo.getDiretorioDestino().endsWith("/") ? arquivo.getDiretorioDestino() + arquivo.getNome() : arquivo.getDiretorioDestino() + "/" + arquivo.getNome();
                 
                 System.out.println("Escrevendo arquivo " + diretorio);
@@ -188,10 +207,11 @@ public class Server extends javax.swing.JFrame {
     }
 
     //FUNÇÃO SERVIDOR QUE RECEBE A PORTA QUE SERÁ ABERTA COMO PARAMETRO
-    public Server (final int port) throws IOException {
+    public server (final int port) throws IOException {
         System.out.println("Iniciou - porta: " + port);
+        
         try (ServerSocket server = new ServerSocket(port)) { //TENTA ABRIR O SOCKET COM A PORTA INFORMADA
-            for(;;){
+            while(true){
                 new InicializaServidor(server.accept()).start(); //INSTANCIA UM NOVO SERVIDOR, ACEITANDO O CLIENTE CONECTADO
             }
         }catch(Exception e){
@@ -202,7 +222,7 @@ public class Server extends javax.swing.JFrame {
     //FUNÇÃO PARA O BOTÃO QUE IRÁ ABRIR A PORTA DO SERVIDOR
     protected void jButtonAbrirActionPerformed(java.awt.event.ActionEvent evt) {
         try{
-            new Server(Integer.parseInt(jTextField1.getText().trim())); //TENTA CRIR UM SERVIDOR PASSANDO A PORTA INFORMADA COMO PARAMETRO
+            new server(Integer.parseInt(jTextField1.getText().trim())); //TENTA CRIR UM SERVIDOR PASSANDO A PORTA INFORMADA COMO PARAMETRO
         }catch(Exception e){
             System.out.println("Erro1: " + e.getMessage());
         }
@@ -212,18 +232,18 @@ public class Server extends javax.swing.JFrame {
     public static void main(String[] args) throws IOException, ClassNotFoundException{
         java.awt.EventQueue.invokeLater(new Runnable() { //CRIA UMA FILA DE EVENTOS
         public void run() {
-            new Server().setVisible(true); //CRIA UM NOVO SERVIDOR DEFININDO A VISIBILIDADE COMO ATIVA
+            new server().setVisible(true); //CRIA UM NOVO SERVIDOR DEFININDO A VISIBILIDADE COMO ATIVA
         }
         });
     }
 
     //FUNÇÃO DO ARQUIVO PARA PEGAR OS DADOS NECESSÁRIOS
-    private static Arquivo getObjectFromByte(byte[] objectAsByte) {
+    private static Arquivo pegaObjetoByte(byte[] objetoByte) {
         Object obj = null;                  //INSTANCIA UM OBJETO
         ByteArrayInputStream bis = null;    //INSTANCIA UM ARRAY DE BYTES
         ObjectInputStream ois = null;       //INSTANCIA UM OBJETO DE ENTRADA
         try {
-            bis = new ByteArrayInputStream(objectAsByte);   //OBJETO VAI RECEBER O ARRAY DE BYTES QUE CONTEM NO DADO
+            bis = new ByteArrayInputStream(objetoByte);   //OBJETO VAI RECEBER O ARRAY DE BYTES QUE CONTEM NO DADO
             ois = new ObjectInputStream(bis);               //RECEBE UM OBJETO DE ENTRADA
             obj = ois.readObject();                         //LE O OBJETO RECEBIDO
 
