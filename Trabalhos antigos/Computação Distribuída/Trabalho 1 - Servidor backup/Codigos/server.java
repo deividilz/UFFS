@@ -1,4 +1,4 @@
-package Codigos2;
+package Codigos;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;

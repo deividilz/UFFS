@@ -1,4 +1,4 @@
-package Codigos2;
+package Codigos;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
