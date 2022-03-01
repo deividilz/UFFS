@@ -6,9 +6,9 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JFileChooser;
-
 
 public class Cliente extends javax.swing.JFrame{
     //INSTANCIANDO AS VARIÁVEIS PARA O MENU GRÁFICO
@@ -25,15 +25,17 @@ public class Cliente extends javax.swing.JFrame{
     private javax.swing.JTextField jTextFieldPorta;
     private javax.swing.JTextField jTextField1;
     
+    //VARIÁVEIS QUE PRECISAM SER USADAS EM OUTRAS CLASSES
     private File arquivoSelecionado;
     private String informacoes;
     private long kbTamanho;
-    private static ArrayList<Integer> servidorOnline = new ArrayList<>();
+    private static ArrayList<Integer> servidorOnline = new ArrayList<>(); //LISTA COM OS SERVIDORES QUE ESTÃO ONLINE
     
-    public Cliente() {    //CLIENTE SOCKET QUE CHAMARÁ A FUNÇÃO PARA INICIAR OS COMPONENTES
+    public Cliente() {          //CLIENTE SOCKET QUE CHAMARÁ A FUNÇÃO PARA INICIAR OS COMPONENTES
         initComponents();       //EXECUTA A FUNÇÃO PARA INICIAR OS COMPONENTES
     }
-
+    
+    //FUNÇÃO SEM RETORNO QUE INSTANCIA OS COMPONENTES GRÁFICOS
     private void initComponents() {
         jLabelArquivo = new javax.swing.JLabel();
         jTextFieldNome = new javax.swing.JTextField();
@@ -48,14 +50,13 @@ public class Cliente extends javax.swing.JFrame{
         jLabelAguardando = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         
-
         this.setLocationRelativeTo(null);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabelArquivo.setText("Selecione o arquivo");
-
         jTextFieldNome.setEnabled(false);
-
+        
+        //FUNÇÃO PARA O BOTÃO DE SELECINOAR AQRUIVO
         jButtonArquivo.setText("Selecionar Arquivo");
         jButtonArquivo.addActionListener(new java.awt.event.ActionListener() {  //FUNÇÃO PARA SELECIONAR O ARQUIVO
             public void actionPerformed(java.awt.event.ActionEvent evt) {       //PASSANDO O EVENTO POR PARAMETRO
@@ -68,6 +69,7 @@ public class Cliente extends javax.swing.JFrame{
         jLabelTamanho.setFont(new java.awt.Font("Dialog", 0, 12));
         jLabelTamanho.setText("KB");
 
+        //FUNÇÃO PARA O BOTÃO ENVIAR
         jButtonEnviar.setText("Enviar");
         jButtonEnviar.addActionListener(new java.awt.event.ActionListener() {   //FUNÇÃO PARA ENVIAR O ARQUIVO SELECIONADO
             public void actionPerformed(java.awt.event.ActionEvent evt) {       //PASSANDO O EVENTO POR PARAMETRO
@@ -83,14 +85,15 @@ public class Cliente extends javax.swing.JFrame{
 
         jTextFieldIP.setText("230.1.2.3");
 
-        jTextField1.setText("C:/Users/Deividi/Downloads/folder/");
+        //FUNÇÃO PARA DEFINIR O DIRETÓRIO DO ARQUIVO
+        jTextField1.setText("C:/folder/");
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
             }
         });
 
-        //CRIAÇÃO DO LAYOUT GRÁFICO
+        //CRIAÇÃO DO LAYOUT GRÁFICO - GERADO ATRAVÉS DO NETBEANS
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(jPanel1Layout);
             jPanel1Layout.setHorizontalGroup(
@@ -151,36 +154,35 @@ public class Cliente extends javax.swing.JFrame{
     }
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {                                            
-
     }  
     
-    private void jButtonEnviarActionPerformed(java.awt.event.ActionEvent evt) {     //FUNÇÃO PARA O EVENTO DE ENVIAR O ARQUIVO PARA O SERVIDOR
-        if (arquivoSelecionado != null){
-            String diretorio_local = jTextField1.getText();
-            File diretorio_verifica = new File(diretorio_local);
+    //FUNÇÃO PARA O EVENTO DE ENVIAR O ARQUIVO PARA O SERVIDOR
+    private void jButtonEnviarActionPerformed(java.awt.event.ActionEvent evt) {     
+        if (arquivoSelecionado != null){                            //SE O ARQUIVO NÃO FOR SELECIONADO AINDA
+            String diretorio_local = jTextField1.getText();         //PEGA O DIRETÓRIO DO ARQUIVO
+            File diretorio_verifica = new File(diretorio_local);    //CRIA UM NOVO 'DIRETORIO' PARA TESTAR
 
-            if(!diretorio_verifica.exists()){
+            if(!diretorio_verifica.exists()){                       //SE O DIRETÓRIO NÃO EXISTIR
                 System.out.println("Erro: diretório informado não existe");
                 jLabelAguardando.setText("Diretório incorreto");
             }else{
-                if(kbTamanho < 1024*3){
-                    enviarArquivoServidor();
-                }else{
+                if(kbTamanho < 1024*3){                             //SE O ARQUIVO FOR MENOR QUE 3mb 
+                    enviarArquivoServidor();                        //ENVIA PARA O SERVIDOR
+                }else{                                              //SENÃO RECUSA O ENVIO
                     System.out.println("Erro: arquivo muito pesado");
                     jLabelAguardando.setText("Arquivo muito pesado");
                 }
             }
-            
         }else{
             System.out.println("Erro: arquivo não selecionado.");
             jLabelAguardando.setText("Arquivo não selecionado");
         }        
     }
     
-    private void jButtonArquivoActionPerformed(java.awt.event.ActionEvent evt) {    //FUNÇÃO PARA ESCOLHER O ARQUIVO
+    //FUNÇÃO PARA ESCOLHER O ARQUIVO
+    private void jButtonArquivoActionPerformed(java.awt.event.ActionEvent evt) {  
         FileInputStream fis;    //INSTANCIA UMA VARIÁVEL PARA RECEBER UM ARQUIVO DE ENTRADA
         try {
-        
             //CRIA UMA VARIAVEL PARA ESCOLHER O ARQUIVO
             JFileChooser escolha = new JFileChooser();
             escolha.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -189,10 +191,10 @@ public class Cliente extends javax.swing.JFrame{
             if (escolha.showOpenDialog(this) == JFileChooser.OPEN_DIALOG) { //SE SELECIONAR O ARQUIVO
                 arquivoSelecionado = escolha.getSelectedFile();  //VARIAVEL RECEBE O ARQUIVO SELECIONADO
                 
-                byte[] bFile = new byte[(int) arquivoSelecionado.length()];   //EXTRAI OS BYTES DA VARIÁVEL
-                fis = new FileInputStream(arquivoSelecionado);                //CRIA UM ARQUIVO DE ENTRADA
-                fis.read(bFile);                                        //FAZ A LEITURA DOS BYTES
-                fis.close();                                            //FECHA A ESCOLHA DE ARQUIVOS
+                byte[] bFile = new byte[(int) arquivoSelecionado.length()];     //EXTRAI OS BYTES DA VARIÁVEL
+                fis = new FileInputStream(arquivoSelecionado);                  //CRIA UM ARQUIVO DE ENTRADA
+                fis.read(bFile);                                                //FAZ A LEITURA DOS BYTES
+                fis.close();                                                    //FECHA A ESCOLHA DE ARQUIVOS
                 
                 //DEFINE O TAMANHO DO ARQUIVO TRANSFORMANDO PARA KBs
                 kbTamanho = arquivoSelecionado.length() / 1024;
@@ -210,36 +212,33 @@ public class Cliente extends javax.swing.JFrame{
 
     //FUNÇÃO PARA ENVIAR O ARQUIVO PARA O SERVIDOR
     private void enviarArquivoServidor(){    
-        int porta = Integer.parseInt(jTextFieldPorta.getText());
-
+        int porta = Integer.parseInt(jTextFieldPorta.getText()); //PORTA RECEBE CONVERSÃO PARA INTEIRO
+        
+        //SE O SERVIDOR ESTIVER ONLINE
         if(servidorOnline.contains(porta)){
             try {
-                // BufferedInputStream bis = new BufferedInputStream(new FileInputStream("C://Users/Deividi/Downloads/folder/arquivo.txt"));
-                 DatagramSocket socket = new DatagramSocket();
+                 DatagramSocket socket = new DatagramSocket();      //CRIA UM SOCKET DE DATAGRAM
+                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(arquivoSelecionado));    //CRIA UM NOVO BUFFER PARA RECEBER O ARQUIVO COM O DIRETORIO
+
+                 int length=bis.available();             
      
-                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(arquivoSelecionado));
-                 int length=bis.available();
-     
-                 byte[] dados = new byte[length];
+                 byte[] dados = new byte[length];           
                  byte[] dados2 = informacoes.getBytes();
+                 bis.read(dados);   //BIS LE OS DADOS
      
-                 bis.read(dados);
-     
-                 String ip = jTextFieldIP.getText();
-                 
-                 InetAddress grupo = InetAddress.getByName(ip);
-     
+                 String ip = jTextFieldIP.getText();                //PEGA O IP DO TEXT FIELD
+                 InetAddress grupo = InetAddress.getByName(ip);     //GRUPO RECEBE O IP
+                
                  jTextFieldIP.setText(ip);
-     
                  System.out.println("Ip: " + ip + " Porta: " +porta);
      
-                 DatagramPacket packet = new DatagramPacket(dados,dados.length, grupo, porta);
-                 DatagramPacket packet2 = new DatagramPacket(dados2,dados2.length, grupo, porta);
+                 DatagramPacket packet = new DatagramPacket(dados,dados.length, grupo, porta);      //CRIA O PACKET PARA O ARQUIVO
+                 DatagramPacket packet2 = new DatagramPacket(dados2,dados2.length, grupo, porta);   //CRIA O PACKET PARA O DIRETORIO E DADOS
                  
-                 socket.send(packet2);
-                 socket.send(packet);
-                 socket.close();
-                 bis.close();
+                 socket.send(packet2);      //RECEBE O DIRETORIO E DADOS
+                 socket.send(packet);       //RECEBE O ARQUIVO
+                 socket.close();            //FECHA O SOCKET
+                 bis.close();               //FECHA O BUFFER OUTPUT STREAM
      
                  System.out.println("Info: enviado com sucesso.");
                  jLabelAguardando.setText("Enviado com sucesso");
@@ -263,6 +262,18 @@ public class Cliente extends javax.swing.JFrame{
     }
 
     public static void main(String args[]) {
+        Timer timer = new Timer();
+        
+        //CRIA UM TIMER COM TEMPORIZADOR - EXECUTA NO INSTANTE ZERO E DEPOIS DE 90 EM 90 SEGUNDOS
+        timer.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                servidorOnline = null;              //ZERA A LISTA DEFININDO COMO NUL
+                servidorOnline = new ArrayList<>(); //CRIA NOVA LISTA COM OS SERVIDORES QUE ESTÃO ONLINE
+                System.out.println("Reconectando aos servidores online, aguarde um instante");
+                
+            }
+        }, 0, 90000);   
+
         java.awt.EventQueue.invokeLater(new Runnable() {
         public void run() {
             //THREAD PARA ATUALIZAR O COMPONENTE DURANTE EXECUÇÃO
@@ -270,25 +281,24 @@ public class Cliente extends javax.swing.JFrame{
                 @Override
                 public void run() {
                     while(true) {
-                        
                         try {
-                            MulticastSocket mcs = new MulticastSocket(7777);
-                            InetAddress grupo = InetAddress.getByName("230.1.2.3");
-                            mcs.joinGroup(grupo);
+                            MulticastSocket mcs = new MulticastSocket(7777);            //CRIA UM NOVO MULTICAST
+                            InetAddress grupo = InetAddress.getByName("230.1.2.3");     //GRUPO ADICIONA O IP
+                            mcs.joinGroup(grupo);                                       //SOCKET FAZ JOIN NO GRUPO
 
                             byte rec[] = new byte[256];
-                            DatagramPacket pkg = new DatagramPacket(rec, rec.length);
+                            DatagramPacket pkg = new DatagramPacket(rec, rec.length);   //CRIA UM PACKET 
 
-                            mcs.receive(pkg);
-                            mcs.close();
-                            String data = new String(pkg.getData());
+                            mcs.receive(pkg);                                           //RECEBE O PACKET
+                            mcs.close();                                                //FECHA O SOCKET
+                            String data = new String(pkg.getData());                    //DATA RECEBE A STRING CONVERTIDA
                             
                             String array[] = new String[7];
                             array = data.split(": ");
-                            int porta = Integer.parseInt(array[1].trim());
+                            int porta = Integer.parseInt(array[1].trim());              //PORTA RECEBE EM INTEIRO
 
-                            if(!servidorOnline.contains(porta)) {    
-                                servidorOnline.add(porta);
+                            if(!servidorOnline.contains(porta)) {                       //SE O SERVIDOR NÃO ESTIVER ABERTO AINDA
+                                servidorOnline.add(porta);                              //ADICIONA NA LISTA
                             }
                             
                             System.out.println(data);
@@ -298,7 +308,6 @@ public class Cliente extends javax.swing.JFrame{
                     }
                 }
             }).start(); //CRIANDO A THREAD
-            
             new Cliente().setVisible(true);
         }
         });

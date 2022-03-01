@@ -26,7 +26,6 @@ public class Server extends javax.swing.JFrame{
 
      //FUNÇÃO SEM RETORNO QUE INSTANCIA OS COMPONENTES GRÁFICOS
      private void initComponents() {
-
         jLabelInfo = new javax.swing.JLabel();
         jLabelPorta = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -43,26 +42,26 @@ public class Server extends javax.swing.JFrame{
         jLabelInfo.setText("Servidor offline");
         jLabelPorta.setText("Porta");
 
+        //FUNÇÃO PARA O BOTÃO DE ABRIR PORTA
         jButtonAbrir.setText("Abrir porta");
         jButtonAbrir.addActionListener(new java.awt.event.ActionListener() {    //FUNÇÃO PARA O EVENTO DE ABRIR PORTA DO SERVIDOR
         public void actionPerformed(java.awt.event.ActionEvent evt) {       //PASSANDO O EVENTO POR PARAMETRO
-            new Thread (new Runnable() {
+            new Thread (new Runnable() { //CRIA UMA NOVA THREAD
                 @Override
                 public void run() {
                     try{    //VAI TENTAR ALTERAR O TEXTO DO COMPONENTE
                         Integer.parseInt(jTextField1.getText().trim());
                         jLabelInfo.setText("Servidor online");
-                        //System.out.println(jLabelInfo);
-
                         jButtonAbrirActionPerformed(evt); //CHAMA O EVENTO CASO PRESSIONADO O BOTÃO
                     }catch(Exception e){ //CASO HOUVER ERRO
                         jLabelInfo.setText("Servidor com porta inválida");
                     }            
                 }
-            }).start(); //CRIANDO A THREAD*/
+            }).start(); //INICIALIZA A THREAD
         }
         });
 
+        //FUNÇÃO PARA O BOTÃO DE FECHAR PORTA
         jButton2.addActionListener(new java.awt.event.ActionListener() {    //FUNÇÃO PARA O BOTÃO DE EXIT
             public void actionPerformed(java.awt.event.ActionEvent evt) {   //PASSANDO O EVENTO POR PARAMETRO
                 System.exit(0);                                             //FECHA A INTERFACE E FINALIZA O SERVIDOR
@@ -76,8 +75,7 @@ public class Server extends javax.swing.JFrame{
         jLabelTamanhoImprimir.setText(" ");
         jButton2.setText("Encerrar servidor");
 
-        //CRIAÇÃO DO LAYOUT GRÁFICO
-        
+         //CRIAÇÃO DO LAYOUT GRÁFICO - GERADO ATRAVÉS DO NETBEANS        
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -131,38 +129,38 @@ public class Server extends javax.swing.JFrame{
     //FUNÇÃO SERVIDOR QUE RECEBE A PORTA QUE SERÁ ABERTA COMO PARAMETRO
     public Server (final int port) throws IOException, ClassNotFoundException {    
         try {
-            MulticastSocket msocket = new MulticastSocket(port);
-            InetAddress grupo = InetAddress.getByName("230.1.2.3");
-            msocket.joinGroup(grupo);
+            MulticastSocket msocket = new MulticastSocket(port);                //DEFINE UM SOCKET MULTICAST
+            InetAddress grupo = InetAddress.getByName("230.1.2.3");             //ADICIONA O GRUPO NO ENDEREÇO
+            msocket.joinGroup(grupo);                                           //VINCULA O SOCKET NO GRUPO
 
-            byte[] dados = new byte[msocket.getReceiveBufferSize()];
-            DatagramPacket packet = new DatagramPacket(dados, dados.length);
+            byte[] dados = new byte[msocket.getReceiveBufferSize()];            //RECEBE O BYTE COM OS DADOS DO SOCKET
+            DatagramPacket packet = new DatagramPacket(dados, dados.length);    //CRIA UM DATAGRAM COM OS DADOS
 
-            msocket.receive(packet);
+            msocket.receive(packet);                                            //SOCKET RECEBE O SEGUNDO PACK COM INFORMAÇÕES DO ARQUIVO
             
-            String info = new String(packet.getData(), 0, packet.getLength());
-            String array[] = new String[4];
-            array = info.split(",");           
-            String diretorio = "C:/Users/Deividi/Downloads/folder/" + array[0];
+            String info = new String(packet.getData(), 0, packet.getLength());  //INFO RECEBE A MENSAGEM DO CLIENTE
+            String array[] = new String[4];                                     //INSTANCIA UM ARRAY QUE RECEBE STRING
+            array = info.split(",");                                            //SPLIT PARA SEPARAR O ARRAY E PEGAR A PORTA CORRETAMENTE
             
-            int tamanho = Integer.parseInt(array[1])*1025;
+            String diretorio = array[2] + array[0];                             //DIRETORIO RECEBE A INFO DO DIRETORIO + O NOME DO ARQUIVO PARA SALVAR
+            int tamanho = Integer.parseInt(array[1])*1025;                      //TAMANHO RECEBE A INFO DO TAMANHO CONVERTIDO PARA INTEIRO
 
-            if(tamanho == 0){
-                tamanho = 1000;
+            if(tamanho == 0){                                                   //SE O TAMANHO FOR 0kb (ele pode estar entre 0,1 e 0,9)
+                tamanho = 1000;                                                 //ENTÃO DEFINE O TAMANHO DELE PARA 1kb
             }
 
-            byte[] dados2 = new byte[tamanho];
-            DatagramPacket packet2 = new DatagramPacket(dados2, dados2.length);
-            msocket.receive(packet2);
+            byte[] dados2 = new byte[tamanho];                                  //SEGUNDO DADO
+            DatagramPacket packet2 = new DatagramPacket(dados2, dados2.length); //CRIA UM DATAGRAMA COM OS DADOS
+            msocket.receive(packet2);                                           //SOCKET RECEBE O SEGUNDO PACK COM INFORMAÇÕES DO ARQUIVO
 
-            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(diretorio));
-            fos.write(packet2.getData());
-            fos.flush();
-            fos.close();
-            msocket.close();
+            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(diretorio));   //CRIA UM OUTPUT STREAM RECEBENDO DO BUFFER O ARQUIVO VIA SOCKET
+            fos.write(packet2.getData());                                       //ESCREVE O ARQUIVO RECEBIDO VIA DATAGRAM
+            fos.flush();                                                        //FORÇA A ESCRITA NO DIRETÓRIO
+            fos.close();                                                        //FECHA O OUTPUT STREAM
+            msocket.close();                                                    //FECHA O SOCKET
 
-            jLabelNomeImprimir.setText(array[0]);
-            jLabelTamanhoImprimir.setText(array[1] + "KB");
+            jLabelNomeImprimir.setText(array[0]);                               //IMPRIME O NOME DO ARQUIVO NA TELA
+            jLabelTamanhoImprimir.setText(array[1] + "KB");                     //IMPRIME O TAMANHO DO ARQUIVO NA TELA
 
             System.out.println("Info: arquivo recebido.\n");
 
@@ -177,27 +175,28 @@ public class Server extends javax.swing.JFrame{
         System.out.println("Servidor online > porta: " + porta );
         Timer timer = new Timer();
         
+        //CRIA UM TIMER COM TEMPORIZADOR - EXECUTA NO INSTANTE ZERO E DEPOIS DE 30 EM 30 SEGUNDOS
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                try (MulticastSocket msocket = new MulticastSocket()) {
-                    InetAddress grupo = InetAddress.getByName("230.1.2.3");
-                    msocket.joinGroup(grupo);
+                try (MulticastSocket msocket = new MulticastSocket()) {                             //TENTA CRIAR UM NOVO MULTICAST
+                    InetAddress grupo = InetAddress.getByName("230.1.2.3");                         //ADICIONA O GRUPO NO ENDEREÇO
+                    msocket.joinGroup(grupo);                                                       //VINCULA O SOCKET NO GRUPO
 
                     String mensagem = "Servidor online > porta: " + porta;
                     byte[] envia = mensagem.getBytes();
 
-                    DatagramPacket pac = new DatagramPacket(envia, envia.length, grupo, 7777);
+                    DatagramPacket pac = new DatagramPacket(envia, envia.length, grupo, 7777);      //CRIA UM DATAGRAM PARA ENVIAR OS DADOS
 
-                    msocket.send(pac);
-                    msocket.close();
+                    msocket.send(pac);  //ENVIA O DATAGRAM
+                    msocket.close();    //FECHA O SOCKET
 
                 } catch (IOException e) {
                     System.out.println("Tentando novamente.\n");
                 }
             }
-        }, 0, 30000);
+        }, 0, 30000);   //EXECUTA NO INSTANTE ZERO E DEPOIS DE 30 EM 30 SEGUNDOS
 
-        while(true){
+        while(true){    //ENQUANTO VERDADEIRO
             try{
                 new Server(porta); //TENTA CRIR UM SERVIDOR PASSANDO A PORTA INFORMADA COMO PARAMETRO
             }catch(Exception e){

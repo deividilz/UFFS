@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Cliente",
+            "request": "launch",
+            "mainClass": "Codigos.Cliente",
+            "projectName": "Trabalho 1 - Servidor backup_a7a13d04"
+        },
+        {
+            "type": "java",
             "name": "Launch Server",
             "request": "launch",
             "mainClass": "Codigos2.Server",
