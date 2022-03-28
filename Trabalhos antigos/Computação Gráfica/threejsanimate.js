@@ -40,7 +40,6 @@
 				cubes.push(cube);
 			}
 			
-
 			camera.position.z = 20;
 
 			var animate = function() {
@@ -60,6 +59,13 @@
 				for(var i=0; i<coracoes.length; i++){
 					coracoes[i].rotation.z += 0.01;
 					coracoes[i].rotation.x += 0.01;
+
+					var velocidade = personagem.position.clone().sub(coracoes[i].position);
+					//velociade.normalize().multiplyScalar(0.0001);
+					coracoes[i].position.x+=velocidade.x * 0.01;
+					coracoes[i].position.y+=velocidade.y * 0.01;
+					coracoes[i].position.z+=velocidade.z * 0.01;
+					
 				}
 
 				personagem.rotation.x += 0.01;
