@@ -1,0 +1,7 @@
+CHAT MQTT
+
+Alunos: Deividi Luiz, Luis Henrique
+
+Para compilar: gcc chat.c -o chat -lpaho-mqtt3as
+
+Algumas funções mais específicas serão tratadas posteriormente.
