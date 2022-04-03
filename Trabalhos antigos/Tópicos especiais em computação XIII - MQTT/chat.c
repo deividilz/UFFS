@@ -11,6 +11,7 @@
  * 
  * /*****************************/
 
+//INCLUDE DAS BIBLIOTECAS QUE SERÃO UTILIZADAS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +29,7 @@
 #include <OsWrapper.h>
 #endif
 
+//DEFINIÇÃO DAS VARIÁVEIS GLOVAIS DE TAMANHO E ENDEREÇO
 #define ADDRESS     "tcp://localhost:1883"
 #define QOS         1
 #define TIMEOUT     10000L
@@ -38,35 +40,29 @@
 
 #define USERS_STATUS "USER_STATUS"
 
-char userChat[TAM][TAM];
-char userChatBlock[TAM][TAM];
-char userStatus[TAM][TAM];
-char solicitationsStatus[TAM][TAM];
-char participateGroupOthersID[TAM_L][TAM_L];
-char participateGroupOthersName[TAM_L][TAM_L];
-char participateGroupOthersStatus[TAM_L][TAM_L];
-char username[TAM];
-char msg_status[TAM];
-char msg_conexao[TAM];
-char listConversation[TAM][TAM];
-char topic_control[TAM]= "control_"; 
+char userChat[TAM][TAM];							//USUÁRIOS QUE ESTARÃO CONECTADOS NO CHAT
+char userChatBlock[TAM][TAM];						//USUÁRIOS QUE FOREM BLOQUEADOS
+char userStatus[TAM][TAM];							//STATUS DOS USUÁRIOS - ONLINE/OFFLINE
+char solicitationsStatus[TAM][TAM];					//STATUS DAS SOLICITAÇÕES - ACEITADO/NEGADO
+char participateGroupOthersID[TAM_L][TAM_L];		//PARTICIPANTES DOS OUTROS GRUPOS
+char participateGroupOthersName[TAM_L][TAM_L];		//NOME DOS OUTROS GRUPOS
+char participateGroupOthersStatus[TAM_L][TAM_L];	//STATUS DOS OUTROS GRUPOS
+char username[TAM];									//NOME DO USUÁRIO 						
+char listConversation[TAM][TAM];					//LISTA COM TODAS AS CONVERSAS JÁ INICIALIZADAS OU REJEITADAS
+char topic_control[TAM]= "control_"; 				//CONTEM UMA PARTE QUE SEMPRE SERÁ USADA PRA CONCATENAR AO RESPONDER OUTRO USUÁRIO
 
-int time_s = 0; 	
-int finished = 0;
-int show_menu = 1;
-int countMyAdmin = 0;
-int subscribed = 0;
-int disc_finished = 0;
+//int time_s = 0; 	
+int finished = 0;		//VARIÁVEL DO MQTT PARA O FIM
+int subscribed = 0;		//VARIÁVEL DO MQTT PARA QUANDO INSCREVER
+int disc_finished = 0;	//VARIÁVEL DO MQTT PARA QUANDO FINALIZAR
 
-void set_online(MQTTAsync client);
-void set_offline(MQTTAsync client);
+MQTTAsync_message pubmsg = MQTTAsync_message_initializer;					//CODIGO DO MQTT PARA INICILIZAR
+MQTTAsync_responseOptions opts = MQTTAsync_responseOptions_initializer;		//CODIGO DO MQTT PARA INICILIZAR
 
-MQTTAsync_message pubmsg = MQTTAsync_message_initializer;
-MQTTAsync_responseOptions opts = MQTTAsync_responseOptions_initializer;
 //pthread_t t_timer;					//THREAD DO TIMER/TEMPO
 
 // THREAD PARA O TIMER GERAL 
-void* timer(void* arg){
+/*void* timer(void* arg){
     while(1){
         sleep(1);
         time_s++;
@@ -75,9 +71,9 @@ void* timer(void* arg){
 			
         }
     }
-}
+}*/
 
-
+//FUNÇÃO PARA LISTAR OS USUÁRIOS - MOSTRA A LISTA DE USUÁRIOS, O STATUS DELE (ON/OFF) E SE ESTÁ BLOQUEADO/DESBLOQUEADO
 void listarUsurios(){
 	int countPrint = 0;
 
@@ -88,8 +84,7 @@ void listarUsurios(){
 				printf("%d\t%s\t\t\t%s\t\t\tyou\n", i+1, userChat[i], userStatus[i]);
 			}else{
 				printf("%d\t%s\t\t\t%s\t\t\t%s\n", i+1, userChat[i], userStatus[i], userChatBlock[i]);;
-			}
-			
+			}			
 			countPrint++;
 		}
 	}
@@ -100,9 +95,9 @@ void listarUsurios(){
 		printf("\n\n");
 }
 
+//FUNÇÃO PARA LISTAR OS INTEGRANTES DO GRUPO, MOSTRA O NOME DO GRUPO, NOME DO USUARIO, STATUS DELE (ON/OFF) E O STATUS LEVEL (ADMIN OU USER)
 int listarIntegrantesGrupo(char myGroup[TAM], char statusMyGroup[TAM]){
-	int countIntegrate;
-	//printf("stats: %s", statusMyGroup);
+	int countIntegrate = 0;
 
 	printf("\n\nListando integrantes do grupo: %s\n", myGroup);
 	printf("\nNome do grupo\t\tUsuário\t\t\t\tStatus\t\tLevel\n\n");
@@ -119,8 +114,7 @@ int listarIntegrantesGrupo(char myGroup[TAM], char statusMyGroup[TAM]){
 					printf("%s\t\t%s\t\t\t\t%s\t\t%s\n", participateGroupOthersName[i], participateGroupOthersID[i], userStatus[j], participateGroupOthersStatus[i]);
 					countIntegrate++;
 				}
-			}			
-			//printf("%s\t\t%s\t\t\t\t\t\t%s\n", participateGroupOthersName[i], participateGroupOthersID[i], participateGroupOthersStatus[i]);										
+			}										
 		}
 	}
 
@@ -143,13 +137,13 @@ char *split_string(char *msg, char *caracter, int select){
 
     temp = strtok(str, " ");				//REALIZA O SPLIT PROCURANDO O ESPAÇO
     
-	if (temp) {												//SE TEMP NÃO FOR NULL
+	if (temp){												//SE TEMP NÃO FOR NULL
         result = malloc( (tamanho + 1) * sizeof(char**));	//ALOCA MEMORIA PARA O RESULTADO
         result[tamanho++] = temp;							//RECEBE TEMP EM VETOR
     }
 
 	int i = 0;
-	while ( (temp = strtok(0, caracter)) != 0 ) {					//ENQUANTO ENCONTRAR ESPAÇO REALIZA O SPLIT
+	while ((temp = strtok(0, caracter)) != 0 ) {					//ENQUANTO ENCONTRAR ESPAÇO REALIZA O SPLIT
 		result = realloc(result, (tamanho + 1) * sizeof(char**));	//ALOCA MEMORIA 
 		result[tamanho++] = temp;									//ADICIONA TEMP NO VETOR
 		i++;
@@ -171,7 +165,6 @@ void * send_message(void *client, char *parameter){
 	char topic_control_other[TAM] = "control_";
 	char myClient[TAM];
 	int selectUser = 0;
-	int countPrint = 0;
 	char opc[TAM];
 
 	//PERCORRE TODA A LISTA DE USUÁRIOS ONLINE E IMPRIME NA TELA
@@ -194,24 +187,22 @@ void * send_message(void *client, char *parameter){
 			selectUser--;
 		}while(selectUser <= 0 || selectUser > sizeof(userChat));
 
-		if(strstr(opc, "/sair"))
-			return NULL;
+		if(strstr(opc, "/sair"))	//SE DIGITAR SAIR
+			return NULL;			//RETORNA NULL SAINDO DA FUNÇÃO
 
-		if(strcmp(userChatBlock[selectUser], "yes")==0){
+		if(strcmp(userChatBlock[selectUser], "yes")==0){	//SE USUÁRIO ESTIVER BLOQUEADO NÃO PERMITE ENVIO DE MENSAGENS
 			printf("[ERRO]: Usuário está bloqueado, desbloqueie para enviar mensagens.\n\n");
-			show_menu = 1;
 			return NULL;
 		}
 
-		strcat(topic_control_other, userChat[selectUser]);				//CONCATENA NO TOPICO DO USUÁRIO FINAL O SEU ID
-		strcpy(myClient, username);
+		strcat(topic_control_other, userChat[selectUser]);					//CONCATENA NO TOPICO DO USUÁRIO FINAL O SEU ID
+		strcpy(myClient, username);											//COPIA O NOME DO USUÁRIO
 		pubmsg.payload = strcat(myClient," deseja enviar mensagem");		//CONCATENA E SALVA A MENSAGEM 
 		pubmsg.payloadlen = strlen(pubmsg.payload);							//RECEBE O TAMANHO DA MENSAGEM
 		MQTTAsync_sendMessage(client, topic_control_other, &pubmsg, &opts); //ENVIA A MENSAGEM PARA O USUÁRIO FINAL EM SEU TÓPICO DE CONTROLE
 	}else{
-
-		char nameGroup[TAM];
-		strcpy(nameGroup, parameter);
+		char nameGroup[TAM];			
+		strcpy(nameGroup, parameter);	//COPIA O NOME DO GRUPO
 		
 		//ENQUANTO O USUÁRIO INFORMADO FOR INVÁLIDO CONTINUA PEDINDO
 		do{
@@ -222,9 +213,8 @@ void * send_message(void *client, char *parameter){
 			selectUser--;
 		}while(selectUser <= 0 || selectUser > sizeof(userChat));
 
-		if(strcmp(userChatBlock[selectUser], "yes")==0){
+		if(strcmp(userChatBlock[selectUser], "yes")==0){	//SE USUÁRIO ESTIVER BLOQUEADO NÃO PERMITE ENVIO DE MENSAGENS
 			printf("[ERRO]: Usuário está bloqueado, desbloqueie para enviar mensagens.\n\n");
-			show_menu = 1;
 			return NULL;
 		}
 
@@ -233,17 +223,17 @@ void * send_message(void *client, char *parameter){
 		strcat(myClient," deseja adicioná-lo ao grupo ");		//CONCATENA E SALVA A MENSAGEM 
 		strcat(myClient, nameGroup);							//CONCATENA E SALVA A MENSAGEM 
 
-		pubmsg.payload = myClient;
-		pubmsg.payloadlen = strlen(myClient);							//RECEBE O TAMANHO DA MENSAGEM
+		pubmsg.payload = myClient;											//RECEBE A MENSAGEM
+		pubmsg.payloadlen = strlen(myClient);								//RECEBE O TAMANHO DA MENSAGEM
 		MQTTAsync_sendMessage(client, topic_control_other, &pubmsg, &opts); //ENVIA A MENSAGEM PARA O USUÁRIO FINAL EM SEU TÓPICO DE CONTROLE
 	}
 
 	return NULL;
 }
 
+//FUNÇÃO PARA EXCLUIR O USUÁRIO DO GRUPO
 void excluiUsuario(void *client, char myGroup[TAM]){
 	listarIntegrantesGrupo(myGroup, "Admin");
-	int selectUser = 0;
 	int busca = 0;
 	char message[TAM];
 	char userRemove[TAM];
@@ -257,7 +247,6 @@ void excluiUsuario(void *client, char myGroup[TAM]){
 		if(strcmp(participateGroupOthersName[i], myGroup) == 0){
 			for(int j=0; j<TAM; j++){
 				if(strcmp(participateGroupOthersID[j], userRemove)==0){
-					selectUser = i;
 					busca++;
 				}
 			}													
@@ -381,6 +370,7 @@ bool deletarGrupo(void *client, char myGroup[TAM]){
 
 	}else{
 		printf("[INFO]: Você desistiu de excluir o grupo %s\n\n", myGroup);
+		return false;
 	}	
 }
 
@@ -430,13 +420,10 @@ void adminGroup(void * client){
 		}while(strcmp(myGroups[opt], "")==0 || opt < 0);
 
 		if(strstr(option,"/sair")){
-			show_menu = 1;
 			return;
 		}
 
 		printf("\n\n");
-
-		int countIntegrate=0;	
 		
 		if(strcmp(statusMyGroups[opt], "Admin")==0){
 			do{	
@@ -495,7 +482,6 @@ void adminGroup(void * client){
 			
 				switch (opt){
 					case 1:
-						countIntegrate = 0;
 						system("clear");
 						listarIntegrantesGrupo(myGroups[position], "User");
 
@@ -556,7 +542,6 @@ void *chat(void *context, char topic_chat[TAM]){
 	char message[TAM_MSG];
 	char messageID[TAM_MSG];
 	char newTC[TAM];
-	show_menu = 0;
 	strcpy(newTC, topic_chat);
 	
 	printf("\n\nPara sair do chat, digite: /sairchat");
@@ -592,7 +577,7 @@ void *chat(void *context, char topic_chat[TAM]){
 		strcpy(message, "");
 	}while(1);
 
-	show_menu = 1;
+	//how_menu = 1;
 	printf("\n\n\t>>\tChat encerrado\t<<\t\n\n");
 
 	system("clear");
@@ -707,7 +692,11 @@ char *aceitar_contato(char * msg, void *context){
 				MQTTAsync_subscribe(context, nameTopic, QOS, &opts);	 //INSCREVE O CLIENTE NO TÓPICO
 			}*/
 		}else{
-			MQTTAsync_subscribe(context, nameTopicChat, QOS, &opts);	 //INSCREVE O CLIENTE NO TÓPICO
+			pubmsg.payload = messageAnswer; 				//DEFINE A MENSAGEM PARA ENVIAR
+			pubmsg.payloadlen = strlen(messageAnswer);		//DEFINE O TAMANHO DA MENSAGEM
+
+			MQTTAsync_subscribe(context, answerConnection, QOS, &opts);	 //INSCREVE O CLIENTE NO TÓPICO
+			MQTTAsync_sendMessage(context, topic_control_other, &pubmsg, &opts); //ENVIA A MENSAGEM
 		}
 
 		ptopic_chat = answerConnection;	//PONTEIRO RECEBE A STRING
@@ -716,7 +705,6 @@ char *aceitar_contato(char * msg, void *context){
 	}else{
 		printf("\r[INFO]: Contato recusado\n\n");
 
-		char *split;
 		if (strstr(msg, "_GROUP")){
 			strcpy(answerConnection, "Nao ");			//REALIZA A CÓPIA DO SPLIT RECEBIDO
 			strcat(answerConnection, nameTopicGroup);	//REALIZA A CÓPIA DO SPLIT RECEBIDO
@@ -768,8 +756,6 @@ void connlost(void *context, char *cause){
 int msgarrvd(void *context, char *topicName, int topicLen, MQTTAsync_message *message){
 	char * newMessage = message->payload;
 	
-	show_menu = 0;
-
 	char *split = split_string(newMessage, " ", 0);		//REALIZA O SPLIT PARA PEGAR O ID DO USUÁRIO
 	char userID[TAM];
 	int find = 0;
@@ -912,12 +898,8 @@ int msgarrvd(void *context, char *topicName, int topicLen, MQTTAsync_message *me
 			}	
 		}	
 	}else if(strstr(message->payload," deseja adicioná-lo ao grupo")){ //RECEBEU SOLICITAÇÃO DE BATE PAPO
-		//show_menu = 0;
-		//getchar();
-
 		find = 0;
 
-		char answers[TAM];
 		char *nameGroup = split_string(newMessage, " ", 5);
 		char nameGroupChar[TAM];
 
@@ -933,7 +915,7 @@ int msgarrvd(void *context, char *topicName, int topicLen, MQTTAsync_message *me
 			}
 		}
 
-		char *answer = aceitar_contato(message->payload, context);	//CHAMA A FUNÇÃO PARA RECEBER A RESPOSTA
+		aceitar_contato(message->payload, context);	//CHAMA A FUNÇÃO PARA RECEBER A RESPOSTA
 
 		if(find == 0){
 			for(int i=0; i<TAM; i++){
@@ -1209,7 +1191,6 @@ int msgarrvd(void *context, char *topicName, int topicLen, MQTTAsync_message *me
 			printf("\n\n[INFO]: %s removeu você do grupo %s!\n\n", userAdmin, nameGroup);
 
 			find = 0;
-			int posicao=0;
 
 			MQTTAsync_unsubscribe(context, nameGroup, &opts);
 
@@ -1232,7 +1213,6 @@ int msgarrvd(void *context, char *topicName, int topicLen, MQTTAsync_message *me
 		}
 	}
 
-	show_menu = 1;
     MQTTAsync_freeMessage(&message); 	//LIBERA DA MEMÓRIA
     MQTTAsync_free(topicName);			//LIBERA DA MEMÓRIA
     return 1;
@@ -1271,8 +1251,6 @@ void set_block(MQTTAsync client){
 }
 
 void set_unblock(MQTTAsync client){
-	int countPrint = 0;
-
 	//PERCORRE TODA A LISTA DE USUÁRIOS ONLINE E IMPRIME NA TELA
 	printf("\n\nContatos salvos: \n\n");
 	listarUsurios();
@@ -1281,7 +1259,6 @@ void set_unblock(MQTTAsync client){
 
 	char option[10];
 	int opt = 0;
-	char userId[TAM];
 
 	do{
 		printf("Escolha o usuário que deseja desbloquear: ");
@@ -1308,7 +1285,7 @@ void set_unblock(MQTTAsync client){
 }
 
 void set_online(MQTTAsync client){
-
+	char msg_status[TAM];								//MENSAGEM PARA O STATUS - ONLINE / OFFLINE		
 	strcpy(msg_status,username);			//INSERE O USERNAME DO USUÁRIO INFORMADO NO INICIO DA APLICAÇÃO
 	strcat(msg_status," está online\n\n"); 	//CONCATENA AS STRINGS
 
@@ -1318,7 +1295,7 @@ void set_online(MQTTAsync client){
 }
 
 void set_offline(MQTTAsync client){
-
+	char msg_status[TAM];								//MENSAGEM PARA O STATUS - ONLINE / OFFLINE		
 	strcpy(userStatus[0], "Offline");
 
 	strcpy(msg_status,username);			//INSERE O USERNAME DO USUÁRIO INFORMADO NO INICIO DA APLICAÇÃO
@@ -1403,8 +1380,6 @@ int menu(){
 	char *underscore = "_";
 	char *space = " ";
 
-	show_menu = 1;
-
 	printf("Digite seu login para acessar o chat.\n");
 	printf("Username: ");
 
@@ -1469,139 +1444,136 @@ int menu(){
 		goto exit;
 
 	do{
-		if(show_menu == 1){
-			
-			if(strcmp(userStatus[0], "Online")==0){	
+		if(strcmp(userStatus[0], "Online")==0){	
 
-				if(opc >= 1 && opc <= 8)	{	
-					printMenu();		
-				}else{
-					printf("\n");
-				}
-
-				opc = 0;
-				//scanf ( "%[^\n]", &ans);
-				fgets(opcao, 10, stdin);
-				opc = atoi(opcao);
-
-				switch (opc){
-					case 1:
-						system("clear");
-						send_message(client, "");
-						break;
-					case 2: //PERCORRE TODA A LISTA DE USUÁRIOS ONLINE E IMPRIME NA TELA
-						system("clear");
-						printf("\n\nUsuários online: \n\n");
-						listarUsurios();
-						break;
-					case 3:
-						system("clear");
-						countPrint = 0;
-
-						printf("\nHistórico de chats: \n\n");
-						
-						for(int i=0; i<TAM; i++){
-							if(strcmp(listConversation[i], "")!=0){
-								lines++;
-							}
-						}
-
-						if(lines > 0)
-							printf("\t\tChat\t\t\t\t\t\tStatus chat\n\n");
-
-						for (int i = 0; i<TAM; i++){
-							if(strcmp(listConversation[i], "") !=0 ){
-								printf("%d\t%s\t\t\t\t\t%s\n\n", i+1, listConversation[i], solicitationsStatus[i]);
-								countPrint++;							
-							}
-						}
-
-						lines = 0;
-
-						if(countPrint == 0){
-							printf("[ERRO]: Você não possui históricos no momento.\n\n");
-						}else{
-							printf("\n\n");
-							do{
-								printf("Para sair: /sair\nSelecione um chat para abrir: ");
-								opc = 0;
-								fgets(opcao, 10, stdin);
-
-								if(strstr(opcao,"/sair")){
-									system("clear");
-									printMenu();
-									break;
-								}
-
-								opc = atoi(opcao);
-							}while(strcmp(listConversation[opc-1], "")==0 || opc < 0 || strcmp(solicitationsStatus[opc-1], "Denied")==0 || strcmp(solicitationsStatus[opc-1], "Blocked")==0);
-
-							if(!strstr(opcao,"/sair"))
-								chat(client, listConversation[opc-1]);	//INICIALIZA O CHAT
-						}
-						
-						break;
-					case 4:
-						system("clear");
-						set_block(client);
-						break; 	
-					case 5:
-						system("clear");
-						set_unblock(client);
-						break; 
-					case 6:
-						system("clear");
-						criar_grupo(client);
-						break; 							
-					case 7:
-						system("clear");
-						adminGroup(client);
-						break;
-					case 8:
-						//system("clear");
-						printf("[INFO]: Desconectando...\n\n");
-						set_offline(client);
-
-						disc_opts.onSuccess = onDisconnect;
-						disc_opts.onFailure = onDisconnectFailure;
-						
-						if ((rc = MQTTAsync_disconnect(client, &disc_opts)) != MQTTASYNC_SUCCESS){
-							printf("[ERRO]: Failed to start disconnect, return code %d\n\n", rc);
-							rc = EXIT_FAILURE;
-							//goto destroy_exit;
-						}
-
-						sleep(1);
-						break;
-						
-						
-				}
+			if(opc >= 1 && opc <= 8)	{	
+				printMenu();		
 			}else{
-				system("clear");
-				printf("[INFO]: You are offline. Stay online for more options.\n\n");
-				printf("1 - Conectar\n\n");
+				printf("\n");
+			}
 
-				opc = 0;
-				fgets(opcao, 10, stdin);
-				opc = atoi(opcao);
+			opc = 0;
+			//scanf ( "%[^\n]", &ans);
+			fgets(opcao, 10, stdin);
+			opc = atoi(opcao);
 
-				switch (opc){
-					case 1:
-						printf("[INFO]: Conectando...\n\n");
-						if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS){
-							printf("[ERRO]: Failed to start connect, return code %d\n\n", rc);
-							rc = EXIT_FAILURE;
-							goto destroy_exit;
+			switch (opc){
+				case 1:
+					system("clear");
+					send_message(client, "");
+					break;
+				case 2: //PERCORRE TODA A LISTA DE USUÁRIOS ONLINE E IMPRIME NA TELA
+					system("clear");
+					printf("\n\nUsuários online: \n\n");
+					listarUsurios();
+					break;
+				case 3:
+					system("clear");
+					countPrint = 0;
+
+					printf("\nHistórico de chats: \n\n");
+					
+					for(int i=0; i<TAM; i++){
+						if(strcmp(listConversation[i], "")!=0){
+							lines++;
 						}
+					}
 
+					if(lines > 0)
+						printf("\t\tChat\t\t\t\t\t\tStatus chat\n\n");
 
-						for(int i = 0; i<TAM; i++){
-							MQTTAsync_subscribe(client, listConversation[i], QOS, &opts);
+					for (int i = 0; i<TAM; i++){
+						if(strcmp(listConversation[i], "") !=0 ){
+							printf("%d\t%s\t\t\t\t\t\t%s\n", i+1, listConversation[i], solicitationsStatus[i]);
+							countPrint++;							
 						}
+					}
 
-						sleep(1);
-						break;
-				}
+					lines = 0;
+
+					if(countPrint == 0){
+						printf("[ERRO]: Você não possui históricos no momento.\n\n");
+					}else{
+						printf("\n\n");
+						do{
+							printf("Para sair: /sair\nSelecione um chat para abrir: ");
+							opc = 0;
+							fgets(opcao, 10, stdin);
+
+							if(strstr(opcao,"/sair")){
+								system("clear");
+								printMenu();
+								break;
+							}
+
+							opc = atoi(opcao);
+						}while(strcmp(listConversation[opc-1], "")==0 || opc < 0 || strcmp(solicitationsStatus[opc-1], "Denied")==0 || strcmp(solicitationsStatus[opc-1], "Blocked")==0);
+
+						if(!strstr(opcao,"/sair"))
+							chat(client, listConversation[opc-1]);	//INICIALIZA O CHAT
+					}
+					
+					break;
+				case 4:
+					system("clear");
+					set_block(client);
+					break; 	
+				case 5:
+					system("clear");
+					set_unblock(client);
+					break; 
+				case 6:
+					system("clear");
+					criar_grupo(client);
+					break; 							
+				case 7:
+					system("clear");
+					adminGroup(client);
+					break;
+				case 8:
+					//system("clear");
+					printf("[INFO]: Desconectando...\n\n");
+					set_offline(client);
+
+					disc_opts.onSuccess = onDisconnect;
+					disc_opts.onFailure = onDisconnectFailure;
+					
+					if ((rc = MQTTAsync_disconnect(client, &disc_opts)) != MQTTASYNC_SUCCESS){
+						printf("[ERRO]: Failed to start disconnect, return code %d\n\n", rc);
+						rc = EXIT_FAILURE;
+						//goto destroy_exit;
+					}
+
+					sleep(1);
+					break;
+					
+					
+			}
+		}else{
+			system("clear");
+			printf("[INFO]: You are offline. Stay online for more options.\n\n");
+			printf("1 - Conectar\n\n");
+
+			opc = 0;
+			fgets(opcao, 10, stdin);
+			opc = atoi(opcao);
+
+			switch (opc){
+				case 1:
+					printf("[INFO]: Conectando...\n\n");
+					if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS){
+						printf("[ERRO]: Failed to start connect, return code %d\n\n", rc);
+						rc = EXIT_FAILURE;
+						goto destroy_exit;
+					}
+
+
+					for(int i = 0; i<TAM; i++){
+						MQTTAsync_subscribe(client, listConversation[i], QOS, &opts);
+					}
+
+					sleep(1);
+					break;
 			}
 		}
 	} while (strcmp(opcao, "q")!=0);
