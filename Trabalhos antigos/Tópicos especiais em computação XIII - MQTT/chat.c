@@ -1469,7 +1469,7 @@ int menu(){
 	printf("Welcome %s\n",username);					//IMPRIME BEM VINDO E O NOME DO USUARIO
 	printf("Your control topic: %s\n\n",topic_control);	//IMPRIME O TOPICO DE CONTROLE DELE
 
-	pthread_create(&t_timer, NULL, timer, client);	
+	pthread_create(&t_timer, NULL, timer, client);		//CRIA A THREAD PARA O TIMER
 
 	while (!subscribed && !finished)
 		#if defined(_WIN32)
