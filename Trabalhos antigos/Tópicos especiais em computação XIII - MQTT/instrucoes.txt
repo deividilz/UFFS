@@ -2,6 +2,22 @@ CHAT MQTT
 
 Alunos: Deividi Luiz, Luis Henrique
 
-Para compilar: gcc chat.c -o chat -lpaho-mqtt3as
+Instruções para compilação e utilização do aplicativo
 
-Algumas funções mais específicas serão tratadas posteriormente.
+	Para compilar o aplicativo, basta digitar no terminal, após estar no mesmo diretório em que o arquivo está presente. 
+
+	Digite no terminal: gcc chat.c -o chat -lpaho-mqtt3as -lpthread
+	Para executar: ./chat
+
+Lembrando que para a execução se tornar possível, é necessário a instalação do PAHO MQTT em ambiente linux.
+Segue abaixo as instruções de instalação do PAHO MQTT:
+
+1 - sudo apt-get update
+2 - sudo apt-get upgrade
+3 - sudo apt-get install libssl-dev
+4 - sudo apt-get install doxygen
+5 - git clone https://github.com/eclipse/paho.mqtt.c.git
+6 - cd paho.mqtt.c 
+7 - make 
+8 - make html 
+9 - sudo make install
