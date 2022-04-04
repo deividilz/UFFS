@@ -134,13 +134,13 @@ char *splitString(char *msg, char *caracter, int select){
 
     temp = strtok(str, " ");				//REALIZA O SPLIT PROCURANDO O ESPAÇO
     
-	if (temp){												//SE TEMP NÃO FOR NULL
+	if (temp){											//SE TEMP NÃO FOR NULL
         result = malloc( (size + 1) * sizeof(char**));	//ALOCA MEMORIA PARA O RESULTADO
         result[size++] = temp;							//RECEBE TEMP EM VETOR
     }
 
 	int i = 0;
-	while ((temp = strtok(0, caracter)) != 0 ) {					//ENQUANTO ENCONTRAR ESPAÇO REALIZA O SPLIT
+	while ((temp = strtok(0, caracter)) != 0 ) {				//ENQUANTO ENCONTRAR ESPAÇO REALIZA O SPLIT
 		result = realloc(result, (size + 1) * sizeof(char**));	//ALOCA MEMORIA 
 		result[size++] = temp;									//ADICIONA TEMP NO VETOR
 		i++;
@@ -450,7 +450,7 @@ void adminGroup(void * client){
 					case 4:
 						deleteGroupAns = deleteGroup(client, myGroups[position]);//CHAMA A FUNÇÃO PARA DELETAR O GRUPO
 
-						if (deleteGroupAns == true){				//SE DECIDIU EXCLUIR O GRUPO
+						if (deleteGroupAns == true){			//SE DECIDIU EXCLUIR O GRUPO
 							strcpy(option,"/sair");				//A VARIÁVEL RECEBE SAIR PARA TIRAR O USUÁRIO DO MENU
 							strcpy(myGroups[position], "");		//LIMPA O NOME DO GRUPO
 						}
@@ -459,7 +459,7 @@ void adminGroup(void * client){
 						
 				}
 			}while(1);
-		}else if(strcmp(statusMyGroups[opt], "User")==0){			//SE O USUÁRIO FOR NORMAL
+		}else if(strcmp(statusMyGroups[opt], "User")==0){	//SE O USUÁRIO FOR NORMAL
 			do{	
 				if(strstr(option,"/sair"))	//SE DIGITOU SAIR SAI DO WHILE
 					break;
@@ -696,28 +696,28 @@ char *acceptContact(char * msg, void *context){
 		if (strstr(msg, "_GROUP")){						//SE A MENSAGEM CONTER _GROUP
 			strcpy(answerConnection, "Nao ");			//COPIA A RESPOTA NAO
 			strcat(answerConnection, nameTopicGroup);	//CONCATENA COM O NOME DO GRUPO
-		}else{										//SE FOR MENSAGEM PARA CONEXÃO ENTRE USUÁRIOS
-			strcpy(answerConnection, "Nao ");		//COPIA A RESPOSTA NAO
-			strcat(answerConnection, nameUser);		//CONCATENA O NOME DO OUTRO USUARIO
-			strcat(answerConnection, "_");			//CONCATENA COM O UNDERSCORE
-			strcat(answerConnection, username);		//CONCATENA COM O NOME DO USUÁRIO
-			strcat(answerConnection, "_Chat");		//CONCATENA COM O UNDERSCORE CHAR
+		}else{											//SE FOR MENSAGEM PARA CONEXÃO ENTRE USUÁRIOS
+			strcpy(answerConnection, "Nao ");			//COPIA A RESPOSTA NAO
+			strcat(answerConnection, nameUser);			//CONCATENA O NOME DO OUTRO USUARIO
+			strcat(answerConnection, "_");				//CONCATENA COM O UNDERSCORE
+			strcat(answerConnection, username);			//CONCATENA COM O NOME DO USUÁRIO
+			strcat(answerConnection, "_Chat");			//CONCATENA COM O UNDERSCORE CHAR
 		}
 		
-		strcpy(topic_control_other, "control_");	//REALIZA A CÓPIA DO CONTROL_
-		strcat(topic_control_other, nameUser);		//CONCATENA COM O NOME DO USUÁRIO DESTINO
-		strcpy(messageAnswer, answerConnection);	//CONCATENA COM A MENSAGEM DE RESPOSTA
-		strcat(messageAnswer, " conexão recusada");	//CONCATENA ACEITANDO CONEXÃO
+		strcpy(topic_control_other, "control_");		//REALIZA A CÓPIA DO CONTROL_
+		strcat(topic_control_other, nameUser);			//CONCATENA COM O NOME DO USUÁRIO DESTINO
+		strcpy(messageAnswer, answerConnection);		//CONCATENA COM A MENSAGEM DE RESPOSTA
+		strcat(messageAnswer, " conexão recusada");		//CONCATENA ACEITANDO CONEXÃO
 		
-		pubmsg.payload = messageAnswer; 			//DEFINE A MENSAGEM PARA ENVIAR
-		pubmsg.payloadlen = strlen(messageAnswer);	//DEFINE O TAMANHO DA MENSAGEM
+		pubmsg.payload = messageAnswer; 				//DEFINE A MENSAGEM PARA ENVIAR
+		pubmsg.payloadlen = strlen(messageAnswer);		//DEFINE O TAMANHO DA MENSAGEM
 
 		MQTTAsync_sendMessage(context, topic_control_other, &pubmsg, &opts); //ENVIA A MENSAGEM
 
-		ptopic_chat = answerConnection;				//PONTEIRO RECEBE A STRING
-		return ptopic_chat;							//RETORNA O PONTEIRO
+		ptopic_chat = answerConnection;					//PONTEIRO RECEBE A STRING
+		return ptopic_chat;								//RETORNA O PONTEIRO
 	}
-	return ptopic_chat;								//RETORNA VAZIO CASO NENHUMA CONDIÇÃO SATISFAZER
+	return ptopic_chat;									//RETORNA VAZIO CASO NENHUMA CONDIÇÃO SATISFAZER
 }
 
 //FUNÇÃO PARA A CONEXÃO PERDIDA - FUNÇÃO DO MQTT
@@ -745,11 +745,11 @@ void connlost(void *context, char *cause){
 int msgarrvd(void *context, char *topicName, int topicLen, MQTTAsync_message *message){
 	char * newMessage = message->payload;
 	
-	char *split = splitString(newMessage, " ", 0);		//REALIZA O SPLIT PARA PEGAR O NOME DO USUÁRIO
+	char *split = splitString(newMessage, " ", 0);			//REALIZA O SPLIT PARA PEGAR O NOME DO USUÁRIO
 	char nameUser[TAM];
 	int find = 0;
 
-	strcpy(nameUser, split);							//COPIA O NOME DO USUARIO
+	strcpy(nameUser, split);								//COPIA O NOME DO USUARIO
 
 	if(strstr(message->payload,"está online")){ 			//VERIFICA SE RECEBEU QUE UM USUÁRIO ESTÁ ONLINE
 		if(strcmp(nameUser, username)!=0){					//VERIFICA SE A MENSAGEM RECEBIDA É DE OUTRO USUARIO
