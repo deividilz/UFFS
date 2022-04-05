@@ -2,7 +2,6 @@
 # the above approach
 import time
 import random
-start_time = time.time()
 import threading as th
 
 # Function to print the maximum
@@ -26,13 +25,13 @@ def MaxNonEmpSubSeq(a, n):
         # If a[i] is greater than 0
         if (a[i] > 0):             
             # Update sum
-            sum += a[i]
-             
+            sum += a[i]       
     return sum
  
 # Driver Code
 if __name__ == '__main__':
     arr = []
+    start_time = time.time()
 
     #for i in range(0, 100000000):
         #arr.append(random.random())
