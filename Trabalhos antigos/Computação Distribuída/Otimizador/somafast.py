@@ -4,7 +4,7 @@ import multiprocessing as mp
 
 vector_sum = []
 
-def MaxNonEmpSubSeq(array, init, end):
+def maxSum(array, init, end):
     sum = 0
     maxm = max(array)
  
@@ -25,7 +25,10 @@ if __name__ == '__main__':
     array = []
     threads = []
 
-    start = time.time()  
+    start = time.time()
+
+    #for i in range(0, 100):
+        #array.append(random.random())  
 
     for i in range(0, 100):
         array.append(i)
@@ -41,7 +44,7 @@ if __name__ == '__main__':
     end_aux = end
 
     for number in range(0, number_split+1):
-        async_result = pool.apply_async(MaxNonEmpSubSeq, (array, init, end))
+        async_result = pool.apply_async(maxSum, (array, init, end))
         threads.append(async_result)
 
         print('init: ', init, 'end: ', end)  

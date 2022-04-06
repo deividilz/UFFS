@@ -5,34 +5,41 @@ import multiprocessing as mp
 
 start = time() 
 threads = []
+max_list = []
 
 def algoritmo_linear(a, init, end):
-    max_terminando_aqui = max_ate_agora = a[0]
-    for x in a[init:end]:
+    max_terminando_aqui = max_ate_agora = a[init]
+    for x in a[init+1:end]:
         #print(max_terminando_aqui, x)
         max_terminando_aqui = max(x, max_terminando_aqui + x)
         max_ate_agora = max(max_ate_agora, max_terminando_aqui)
-        #print(max_terminando_aqui,max_ate_agora)   
+        print(max_terminando_aqui,max_ate_agora)   
     
-    print(max_ate_agora)
-    return max_ate_agora
+    max_list.append(max_ate_agora)
+    #print(max_ate_agora)
+    #return max_ate_agora
 
-array = [5, -3, 4, 10, 0, -2, 2, -5, -2]
+array = [2, -4, 1, 6, -1, -4, 8, -5, -2]
 #for i in range(0, 10):
         #arr.append(i)
 
 number_processes = mp.cpu_count()
 pool = ThreadPool(processes=number_processes)
     
+split = 2
+
 init = 0
-end = int(len(array)/1) 
+end = int(len(array)/split) 
 end_aux = end
+
 
 print('end: ', end)
 
-for number in range(0, 1):
+for number in range(0, split+1):
     async_result = pool.apply_async(algoritmo_linear, (array, init, end))
     threads.append(async_result)
+    
+    print('init: ', init, 'end: ', end)
 
     init = end
     end+=end_aux
@@ -40,14 +47,15 @@ for number in range(0, 1):
     if(end>len(array)):
         end = len(array)
  
-    print('init: ', init, 'end: ', end)
     letters_list = [result.get() for result in threads]
 
-    #sum_end = 0
-    #for i in range(0, len(vector_sum)):
-        #sum_end+=vector_sum[i]
+print("Total1: ", max_list, "\n\n")
+bkp = max_list
+max_list = []
+algoritmo_linear(bkp, 0, len(bkp))
 
-print("Total: ", letters_list, "\n\n")
+print("Total2: ", bkp, "\n\n")
+
 
 end = time()
 print('tempo de execução da soma: {}'.format(end - start))

@@ -15,16 +15,19 @@ def maxSum(a, n):
     return sum
 
 if __name__ == '__main__':
-    arr = []
+    array = []
 
     start = time.time()  
 
-    for i in range(0, 100):
-        arr.append(i)
+    #for i in range(0, 100):
+        #array.append(random.random())
 
-    N = len(arr)
+    for i in range(0, 100):
+        array.append(i)
+
+    N = len(array)
  
-    print('Total: ', maxSum(arr, N))
+    print('Total: ', maxSum(array, N))
 
     end = time.time()
     print('tempo de execução da soma: {}'.format(end - start))
