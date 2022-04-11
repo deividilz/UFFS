@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>MONSTERS ARENA - MD2 controls</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="main.css">
+    <style>
+        body {
+            background-color: #fff;
+            color: rgb(185, 182, 182);
+        }
+
+        a {
+            color: #08f;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="info">
+        <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - MD2 Loader<br />
+        MONSTERS ARENA BY DEIVIDI
+    </div>
+
+    <!-- Import maps polyfill -->
+    <!-- Remove this when import maps will be widely supported -->
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js"
+				}
+			}
+		</script>
+
+    <script type="module">
+
+        import * as THREE from 'three';
+
+        import Stats from './jsm/libs/stats.module.js';
+
+        import { OrbitControls } from './jsm/controls/OrbitControls.js';
+        import { MD2CharacterComplex } from './jsm/misc/MD2CharacterComplex.js';
+        import { Gyroscope } from './jsm/misc/Gyroscope.js';
+
+        let SCREEN_WIDTH = window.innerWidth;
+        let SCREEN_HEIGHT = window.innerHeight;
+
+        let container, stats;
+        let camera, scene, renderer;
+
+        const characters = [];
+        const enemys = [];
+        const bosses = [];
+        var lifeBosses = []
+        var life = [];
+        var myLife = 100;
+        let nCharacters = 1;
+
+        var material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+
+        let cameraControls;
+
+        var fires = [];
+        var firesDirection = [];
+        var ammunition = 30;
+        var geometryBall = new THREE.BoxGeometry(4, 4, 4);
+        var fightBoss = false;
+        var fightNormal = false;
+        var kills = 0;
+        var timeCurrent = false;
+        var clockDeath = 0;
+
+        const nRows = 1;
+
+        var nSkinsEnemy = 1;
+        var nSkinsBoss = 1;
+        var nSkins = 5;
+
+        const controls = {
+
+            moveForward: false,
+            moveBackward: false,
+            moveLeft: false,
+            moveRight: false
+
+        };
+
+        const enemyControls = {
+
+            moveForward: false,
+            moveBackward: false,
+            moveLeft: false,
+            moveRight: false
+
+        };
+
+        const configOgro = {
+
+            baseUrl: 'models/md2/ogro/',
+
+            body: 'ogro.md2',
+            skins: ['grok.jpg', 'ogrobase.png', 'arboshak.png', 'ctf_r.png', 'ctf_b.png', 'darkam.png', 'freedom.png',
+                'gib.png', 'gordogh.png', 'igdosh.png', 'khorne.png', 'nabogro.png', 'sharokh.png'],
+            weapons: [['weapon.md2', 'weapon.jpg']],
+            animations: {
+                move: 'run',
+                idle: 'stand',
+                jump: 'jump',
+                attack: 'attack',
+                crouchMove: 'cwalk',
+                crouchIdle: 'cstand',
+                crouchAttach: 'crattack'
+            },
+
+            walkSpeed: 100,
+            crouchSpeed: 175
+
+        };
+
+        const clock = new THREE.Clock();
+
+        var mouse = { x: 0, y: 0 };
+
+        init();
+        animate();
+
+        function init() {
+            container = document.createElement('div');
+            document.body.appendChild(container);
+
+            // CAMERA
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 4000);
+            camera.position.set(250, 500, 800);
+
+            // SCENE
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050505);
+            scene.fog = new THREE.Fog(0x050505, 1000, 4000);
+            scene.add(camera);
+
+            // LIGHTS
+            scene.add(new THREE.AmbientLight(0x222222));
+            const light = new THREE.DirectionalLight(0xffffff, 0.25);
+            light.position.set(200, 450, 500);
+            light.castShadow = true;
+            light.shadow.mapSize.width = 1024;
+            light.shadow.mapSize.height = 512;
+            light.shadow.camera.near = 100;
+            light.shadow.camera.far = 1200;
+            light.shadow.camera.left = - 1000;
+            light.shadow.camera.right = 1000;
+            light.shadow.camera.top = 350;
+            light.shadow.camera.bottom = - 350;
+
+            scene.add(light);
+
+            //  GROUND
+            const gt = new THREE.TextureLoader().load('textures/terrain/alfast-texture.jpg');
+            const gg = new THREE.PlaneGeometry(16000, 16000);
+            const gm = new THREE.MeshPhongMaterial({ color: 0xffffff, map: gt });
+
+            const ground = new THREE.Mesh(gg, gm);
+            ground.rotation.x = - Math.PI / 2;
+            ground.material.map.repeat.set(64, 64);
+            ground.material.map.wrapS = THREE.RepeatWrapping;
+            ground.material.map.wrapT = THREE.RepeatWrapping;
+            ground.material.map.encoding = THREE.sRGBEncoding;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // RENDERER
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+            container.appendChild(renderer.domElement);
+
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            // STATS
+            stats = new Stats();
+            container.appendChild(stats.dom);
+
+            // EVENTS
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+
+            // CONTROLS
+            cameraControls = new OrbitControls(camera, renderer.domElement);
+            cameraControls.target.set(0, 0, 0);
+            cameraControls.enableZoom = false;
+            cameraControls.enableRotate = false;
+            cameraControls.enablePan = false;
+            cameraControls.update();
+
+            // CHARACTER
+            const configRatam = {
+
+                baseUrl: 'models/md2/ratamahatta/',
+
+                body: 'ratamahatta.md2',
+                skins: ['dead.png'],
+                weapons: [['weapon.md2', 'w_chaingun.png']],
+                animations: {
+                    move: 'run',
+                    idle: 'stand',
+                    jump: 'jump',
+                    attack: 'attack',
+                    crouchMove: 'cwalk',
+                    crouchIdle: 'cstand',
+                    crouchAttach: 'crattack'
+                },
+
+                walkSpeed: 100,
+                crouchSpeed: 175
+
+            };
+
+            for (let i = 0; i < nCharacters; i++) {
+
+                const character = new MD2CharacterComplex();
+                character.scale = 0.8;
+                character.controls = controls;
+                characters.push(character);
+            }
+
+            const baseCharacter = new MD2CharacterComplex();
+            baseCharacter.scale = 0.8;
+
+            baseCharacter.onLoadComplete = function () {
+
+                let k = 0;
+                for (let j = 0; j < nRows; j++) {
+                    for (let i = 0; i < nSkins; i++) {
+                        const cloneCharacter = characters[k];
+
+                        cloneCharacter.shareParts(baseCharacter);
+                        cloneCharacter.enableShadows(true);
+
+                        cloneCharacter.setWeapon(0);
+                        cloneCharacter.setSkin(i);
+
+                        scene.add(cloneCharacter.root);
+
+                        k++;
+                    }
+                }
+
+                const gyro = new Gyroscope();
+                gyro.add(camera);
+                gyro.add(light, light.target);
+
+                characters[Math.floor(nSkins / 2)].root.add(gyro);
+
+            };
+
+            baseCharacter.loadParts(configRatam);
+            document.addEventListener('mousedown', onDocumentMouseDown, false);
+        }
+
+        // EVENT HANDLERS
+        function onWindowResize() {
+
+            SCREEN_WIDTH = window.innerWidth;
+            SCREEN_HEIGHT = window.innerHeight;
+
+            renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+            camera.updateProjectionMatrix();
+
+        }
+
+        function onKeyDown(event) {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW': controls.moveForward = true; break;
+                case 'ArrowDown':
+                case 'KeyS': controls.moveBackward = true; break;
+                case 'ArrowLeft':
+                case 'KeyA': controls.moveLeft = true; break;
+                case 'ArrowRight':
+                case 'KeyD': controls.moveRight = true; break;
+                case 'Space': controls.jump = true; break;
+                case 'KeyR': ammunition = 30; break;
+            }
+        }
+
+        function onKeyUp(event) {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW': controls.moveForward = false; break;
+                case 'ArrowDown':
+                case 'KeyS': controls.moveBackward = false; break;
+                case 'ArrowLeft':
+                case 'KeyA': controls.moveLeft = false; break;
+                case 'ArrowRight':
+                case 'KeyD': controls.moveRight = false; break;
+                case 'Space': controls.jump = false; break;
+            }
+        }
+
+        function onDocumentMouseDown(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+            setTimeout(function () {
+                scene.remove(fire);
+            }, 1500);
+
+            var fire = new THREE.Mesh(geometryBall, material);
+            var fireDirection = { x: 0, y: 0 };
+
+            fire.position.x = characters[0].root.position.x + 5;
+            fire.position.y = characters[0].root.position.y + 12;
+            fire.position.z = characters[0].root.position.z;
+            fireDirection.x = mouse.x;
+            fireDirection.y = mouse.y;
+
+            scene.add(fire);
+            fires.push(fire);
+            firesDirection.push(fireDirection);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+            stats.update();
+        }
+
+        function render() {
+            //CRIA OS INIMIGOS MULTIPLICANDO POR 2 A CADA RODADA
+            if (fightNormal == false && fightBoss == false && kills == 0) {
+                console.log("Criando inimigos");
+                myLife = 100;
+                nSkinsEnemy *= 2;
+                fightNormal = true;
+
+                for (let i = 0; i < nSkinsEnemy; i++) {
+                    const enemy = new MD2CharacterComplex();
+                    enemy.scale = 1;
+                    enemy.controls = enemyControls;
+                    life.push(10);  //VIDA EM 10
+                    enemys.push(enemy);
+                }
+
+                const baseEnemy = new MD2CharacterComplex();
+                baseEnemy.scale = 1;
+
+                baseEnemy.onLoadComplete = function () {
+                    let k = 0;
+                    for (let j = 0; j < nRows; j++) {
+                        for (let i = 0; i < nSkinsEnemy; i++) {
+                            const cloneEnemy = enemys[k];
+                            cloneEnemy.shareParts(baseEnemy);
+                            cloneEnemy.enableShadows(true);
+
+                            var skin = 0;
+                            if (i > 0)
+                                skin = parseInt(nSkinsEnemy / i);   //DEFINE SKINS ALEATORIAS DE ACORDO COM O INDICE
+
+                            if (skin == 10) //SKIN 10 É DO BOSS, ENTÃO NÃO PODE PEGAR ELA
+                                skin = 1;
+
+                            if (skin > 11)  //DEFINE SKINS ATÉ 11
+                                skin = 0;   //QUANDO O VALOR ULTRAPASSA DEFINE ZERO
+
+                            console.log(skin);
+                            cloneEnemy.setSkin(skin);
+
+                            var max = -1000;
+                            var min = 1000;
+
+                            cloneEnemy.root.position.x = (Math.random() * (max - min) + min);
+                            cloneEnemy.root.position.z = (Math.random() * (max - min) + min);
+
+                            scene.add(cloneEnemy.root);
+
+                            k++;
+                        }
+                    }
+                };
+                baseEnemy.loadParts(configOgro);
+            } else if (kills >= nSkinsEnemy && fightBoss == false && fightNormal == true) {
+                //CRIA OS BOSS MULTIPLICANDO POR 2 A CADA RODADA
+                console.log("Criando boss");
+                myLife = 100;
+                kills = 0;
+                life = [];
+                lifeBosses = [];
+                fightBoss = true;
+                fightNormal = false;
+
+                for (let i = 0; i < nSkinsBoss; i++) {
+                    const boss = new MD2CharacterComplex();
+                    boss.scale = 3;
+                    boss.controls = enemyControls;
+                    lifeBosses.push(100);   //VIDA EM 100
+                    bosses.push(boss);
+                }
+
+                const baseBoss = new MD2CharacterComplex();
+                baseBoss.scale = 3;
+
+                baseBoss.onLoadComplete = function () {
+                    let k = 0;
+                    for (let j = 0; j < nRows; j++) {
+                        for (let i = 0; i < nSkinsBoss; i++) {
+                            const cloneBoss = bosses[k];
+                            cloneBoss.shareParts(baseBoss);
+                            cloneBoss.enableShadows(true);
+                            cloneBoss.setSkin(10);
+
+                            var max = -1000;
+                            var min = 1000;
+
+                            cloneBoss.root.position.x = (Math.random() * (max - min) + min);    //DEFINE SUA POSIÇÃO ALEATÓRIA NO CENÁRIO
+                            cloneBoss.root.position.z = (Math.random() * (max - min) + min);    //DEFINE SUA POSIÇÃO ALEATÓRIA NO CENÁRIO
+
+                            scene.add(cloneBoss.root);
+
+                            k++;
+                        }
+                    }
+                };
+
+                baseBoss.loadParts(configOgro);
+            }
+
+            const delta = clock.getDelta();
+
+            for (let i = 0; i < nCharacters; i++) {
+                characters[i].update(delta);
+            }
+
+            //VERIFICA A DISTANCIA DOS INIMIGOS ATÉ O PLAYER, SEGUEM O PLAYER
+            for (var i = 0; i < nSkinsEnemy; i++) {
+                var velocity = characters[0].root.position.clone().sub(enemys[i].root.position);
+                var min = 10;
+                var max = 100;
+                var randon = (Math.random() * (max - min) + min);
+
+                enemys[i].root.position.x += (velocity.x + randon) * 0.001;
+                enemys[i].root.position.y += (velocity.y) * 0.001;
+                enemys[i].root.position.z += (velocity.z + randon) * 0.001;
+                enemys[i].update(0.01);
+            }
+
+            //SE ESTIVER EM UMA PARTIDA COM BOSS
+            if (fightBoss == true) {
+                for (var i = 0; i < nSkinsBoss; i++) {
+                    var velocity = characters[0].root.position.clone().sub(bosses[i].root.position);
+                    var min = 10;
+                    var max = 100;
+                    var randon = (Math.random() * (max - min) + min);
+
+                    bosses[i].root.position.x += (velocity.x + randon) * 0.002;
+                    bosses[i].root.position.z += (velocity.z + randon) * 0.002;
+                    bosses[i].update(0.01);
+                }
+            }
+
+            //VAI PERCORRER PARA VERIFICAR COLISÃO DO TIRO COM O INIMIGO
+            for (var i = 0; i < fires.length; i++) {
+                fires[i].position.x += firesDirection[i].x * 50;
+                fires[i].position.z -= firesDirection[i].y * 50;
+
+                //SE FOR PARTIDA NORMAL
+                if (fightNormal == true) {
+                    for (var j = 0; j < enemys.length; j++) {
+                        //VERIFICA A DISTANCIA DA BALA ATÉ O INIMIGO
+                        if (fires[i].position.distanceTo(enemys[j].root.position) <= 15.0 && life[j] > 0) {
+
+                            life[j] -= 1;
+                            scene.remove(fires[i]); //RETIRA A BALA DA CENA CASO COLIDIR
+
+                            if (life[j] <= 0) {
+                                scene.remove(enemys[j].root);   //RETIRA O INIMGO DA CENA QUANDO ESTIVER SEM VIDA
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                //SE FOR UM BOSS
+                if (fightBoss == true) {
+                    for (var j = 0; j < bosses.length; j++) {
+                        if (fires[i].position.distanceTo(bosses[j].root.position) <= 55.0 && lifeBosses[j] > 0) {
+
+                            lifeBosses[j] -= 1;
+                            scene.remove(fires[i]);
+
+                            if (lifeBosses[j] <= 0) {           //QUANDO A VIDA DO BOSS FOR MENOR QUE ZERO
+                                scene.remove(bosses[j].root);   //REMOVE ELE DA CENA
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            var near = 0;
+
+            //SE FOR UMA PARTIDA NORMAL
+            if (fightNormal == true) {
+                for (var i = 0; i < enemys.length; i++) {
+                    if (characters[0].root.position.distanceTo(enemys[i].root.position) <= 100.0 && life[i] > 0) {
+                        near++; //PROXIMO DE ALGUM INIMIGO
+                    }
+                }
+            }
+
+            //SE FOR UMA PARTIDA COM BOSS
+            if (fightBoss == true) {
+                for (var i = 0; i < bosses.length; i++) {
+                    if (characters[0].root.position.distanceTo(bosses[i].root.position) <= 150.0 && lifeBosses[i] > 0) {
+                        near++; //PROXIMO DE ALGUM BOSS
+                    }
+                }
+            }
+
+            if (near > 0) {                     //SE ESTIVER PROXIMO DE ALGUM INIMIGO OU BOSS
+                clockDeath++;                   //SOMA O TEMPO DE MORTE
+                if (fightNormal == true)        //SE FOR PARTIDA NORMAL
+                    clockDeath += near;         //APENAS SOMA A QUANTIDADE DE INIMIGOS PROXIMOS
+                if (fightBoss == true)          //SE FOR UMA PARTIDA COM BOSS
+                    clockDeath += (near * 2);   //SOMA MULTIPLICANDO POR 2, TEMPO 2X MAIS RAPIDO
+            }
+
+            if (near > 0 && clockDeath >= 60) { //SE ESTIVER PROXIMO DE ALGUM INIMIGO OU BOSS E O CLOCK FOR 60 = 1S
+                myLife--;                       //A VIDA DECREMENTA UM
+                clockDeath = 0;                 //ZERA O CLOCK DE TEMPO DE MORTE
+            }
+
+            if (myLife <= 0) {                  //SE A VIDA FOR ZERO
+                document.location.reload(true); //RECARREGA A PÁGINA
+            }
+
+            console.log("My life: ", myLife);
+
+            if (fightBoss == false) {                       //SE FOR PARTIDA NORMAL
+                kills = 0;
+                for (var i = 0; i < life.length; i++) {     //VERIFICA A QUANTIDADE DE INIMIGOS MORTOS
+                    if (life[i] <= 0) {
+                        kills++;
+                    }
+                }
+            } else {
+                kills = 0;
+                for (var i = 0; i < lifeBosses.length; i++) {   //SE FOR UMA PARTIDA COM BOSS
+                    if (lifeBosses[i] <= 0) {                   //VERIFICA A QUANTIDADE DE BOSSES MORTOS
+                        kills++;
+                    }
+                }
+
+                if (kills >= nSkinsBoss && fightBoss == true) { //QUANDO MATAR TODOS OS BOSSES
+                    fightBoss = false;                          
+                    nSkinsBoss *= 2;                            
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+    </script>
+
+</body>
+
+</html>
