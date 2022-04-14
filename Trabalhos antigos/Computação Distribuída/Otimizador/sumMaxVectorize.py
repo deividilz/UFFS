@@ -59,7 +59,7 @@ def main():
     ########################################
 
     start = timer()
-    sum_normal = maxSumNormal(vector, len_vector)
+    #sum_normal = maxSumNormal(vector, len_vector)
     duration = timer() - start
     
     print('\nSum normal')
@@ -77,9 +77,9 @@ def main():
 
     for index in range(0, number_threads):
         obj = SplitNormal()
-        x = th.Thread(target=obj.split(vector_split[index]), args=(vector_split[index]))   
-        threads.append(x)                                           
-        x.start()
+        #x = th.Thread(target=obj.split(vector_split[index]), args=(vector_split[index]))   
+        #threads.append(x)                                           
+        #x.start()
 
     duration = timer() - start
 

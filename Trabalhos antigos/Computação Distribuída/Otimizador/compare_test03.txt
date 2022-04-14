@@ -1,0 +1,14 @@
+Input value fixed: 1000000000
+
+Sum normal
+Total: 499991396     
+Duration: 758.4995518
+
+################################
+
+With 2 threads
+
+Split with threads
+Total: 499991396     
+Duration: 362.6876444
+-
