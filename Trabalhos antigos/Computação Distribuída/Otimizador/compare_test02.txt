@@ -1,0 +1,65 @@
+Input value fixed: 100000000
+
+Sum normal
+Total: 49997821     
+Duration: 53.4010502
+
+################################
+
+With 2 threads
+
+Split with threads
+Total: 49997821
+Duration: 25.7067420
+-
+Using with threads and GPU
+Total: 49997821
+Duration: 21.6524773
+
+################################
+
+With 4 threads
+
+Split with threads
+Total: 50000009
+Duration: 24.0317716
+-
+Using with threads and GPU
+Total: 50000009
+Duration: 23.4244003
+
+################################
+
+With 8 threads
+
+Split with threads
+Total: 49998707     
+Duration: 25.9153049
+-
+Using with threads and GPU
+Total: 49998707     
+Duration: 21.8624961
+
+###############################
+
+With 16 threads
+
+Split with threads
+Total: 49998084
+Duration: 25.0522553
+-
+Using with threads and GPU
+Total: 49998084
+Duration: 20.8307482
+
+###############################
+
+Withe 32 threads
+
+Split with threads
+Total: 50008588
+Duration: 27.6212278
+-
+Using with threads and GPU
+Total: 50008588
+Duration: 21.8472646
